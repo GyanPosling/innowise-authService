@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:authDB}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Zz3741205}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+      default_schema: public
+    show-sql: true
+jwt:
+  secret: ${JWT_SECRET:change-me}
+  expiration: 3600000
+  refresh-expiration: 360000000
+server:
+  port: 8082
