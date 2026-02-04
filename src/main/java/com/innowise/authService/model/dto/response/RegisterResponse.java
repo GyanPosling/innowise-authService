@@ -10,9 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ValidateTokenResponse {
+public class RegisterResponse {
 
-  private boolean valid;
   private Long userId;
   private String username;
   private String email;

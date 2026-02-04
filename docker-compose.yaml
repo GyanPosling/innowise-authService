@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: authservice-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - authservice_pgdata:/var/lib/postgresql/data
+
+  auth-service:
+    build: .
+    container_name: authservice-app
+    env_file:
+      - .env
+    environment:
+      DB_HOST_DOCKER: postgres
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      SPRING_PROFILES_ACTIVE: docker
+      LOGGING_LEVEL_LIQUIBASE: INFO
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE_LIQUIBASE: DEBUG
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+
+volumes:
+  authservice_pgdata:
