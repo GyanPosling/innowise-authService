@@ -1,0 +1,49 @@
+package com.innowise.authService.mapper;
+
+import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
+import com.innowise.authService.model.dto.response.RegisterResponse;
+import com.innowise.authService.model.dto.response.ValidateTokenResponse;
+import com.innowise.authService.model.entity.AuthUser;
+import com.innowise.authService.config.security.AuthUserDetails;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AuthUserMapper {
+
+  public AuthUser toEntity(CreateCredentialsRequest request, String encodedPassword) {
+    if (request == null) {
+      return null;
+    }
+    AuthUser user = new AuthUser();
+    user.setUsername(request.getUsername());
+    user.setEmail(request.getEmail());
+    user.setPassword(encodedPassword);
+    user.setRole(request.getRole());
+    return user;
+  }
+
+  public RegisterResponse toRegisterResponse(AuthUser user) {
+    if (user == null) {
+      return null;
+    }
+    return RegisterResponse.builder()
+        .userId(user.getId())
+        .username(user.getUsername())
+        .email(user.getEmail())
+        .role(user.getRole())
+        .build();
+  }
+
+  public ValidateTokenResponse toValidateTokenResponse(AuthUserDetails userDetails) {
+    if (userDetails == null) {
+      return null;
+    }
+    return ValidateTokenResponse.builder()
+        .valid(true)
+        .userId(userDetails.getUserId())
+        .username(userDetails.getUsername())
+        .email(userDetails.getEmail())
+        .role(userDetails.getRole())
+        .build();
+  }
+}

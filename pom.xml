@@ -35,7 +35,7 @@
 		<sonar.projectKey>GyanPosling_innowise-authService</sonar.projectKey>
 		<sonar.organization>gyanposling</sonar.organization>
 		<sonar.exclusions>
-			**/config/**,**/exception/**,**/model/**,**/security/**,**/repository/**
+			**/config/**,**/exception/**,**/mapper/**,**/model/**,**/security/**,**/repository/**
 		</sonar.exclusions>
 	</properties>
 	<dependencies>

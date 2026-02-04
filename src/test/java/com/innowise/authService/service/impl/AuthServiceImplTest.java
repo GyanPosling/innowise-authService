@@ -14,6 +14,7 @@ import com.innowise.authService.exception.AuthUserNotFoundException;
 import com.innowise.authService.exception.CredentialsConflictException;
 import com.innowise.authService.exception.LoginFailedException;
 import com.innowise.authService.exception.RefreshTokenRejectedException;
+import com.innowise.authService.mapper.AuthUserMapper;
 import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
 import com.innowise.authService.model.dto.request.LoginRequest;
 import com.innowise.authService.model.dto.request.RefreshTokenRequest;
@@ -29,7 +30,6 @@ import com.innowise.authService.service.JwtService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -54,6 +54,8 @@ class AuthServiceImplTest {
   private PasswordEncoder passwordEncoder;
   @Mock
   private CustomUserDetailsService customUserDetailsService;
+  @Mock
+  private AuthUserMapper authUserMapper;
   @Mock
   private Authentication authentication;
 
@@ -95,26 +97,34 @@ class AuthServiceImplTest {
         .password("password123")
         .role(Role.USER)
         .build();
+    AuthUser mappedUser = new AuthUser();
+    mappedUser.setUsername("user");
+    mappedUser.setEmail("user@example.com");
+    mappedUser.setPassword("encoded");
+    mappedUser.setRole(Role.USER);
+    AuthUser savedUser = new AuthUser();
+    savedUser.setId(10L);
+    savedUser.setUsername("user");
+    savedUser.setEmail("user@example.com");
+    savedUser.setPassword("encoded");
+    savedUser.setRole(Role.USER);
+    RegisterResponse expected = RegisterResponse.builder()
+        .userId(10L)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.USER)
+        .build();
     when(passwordEncoder.encode("password123")).thenReturn("encoded");
-    when(authUserRepository.save(any(AuthUser.class))).thenAnswer(invocation -> {
-      AuthUser user = invocation.getArgument(0);
-      user.setId(10L);
-      return user;
-    });
+    when(authUserMapper.toEntity(request, "encoded")).thenReturn(mappedUser);
+    when(authUserRepository.save(mappedUser)).thenReturn(savedUser);
+    when(authUserMapper.toRegisterResponse(savedUser)).thenReturn(expected);
 
     RegisterResponse response = authService.createCredentials(request);
 
-    ArgumentCaptor<AuthUser> captor = ArgumentCaptor.forClass(AuthUser.class);
-    verify(authUserRepository).save(captor.capture());
-    AuthUser saved = captor.getValue();
-    assertEquals("user", saved.getUsername());
-    assertEquals("user@example.com", saved.getEmail());
-    assertEquals("encoded", saved.getPassword());
-    assertEquals(Role.USER, saved.getRole());
-    assertEquals(10L, response.getUserId());
-    assertEquals("user", response.getUsername());
-    assertEquals("user@example.com", response.getEmail());
-    assertEquals(Role.USER, response.getRole());
+    verify(authUserMapper).toEntity(request, "encoded");
+    verify(authUserRepository).save(mappedUser);
+    verify(authUserMapper).toRegisterResponse(savedUser);
+    assertSame(expected, response);
   }
 
   @Test
@@ -193,16 +203,21 @@ class AuthServiceImplTest {
     user.setEmail("user@example.com");
     user.setRole(Role.ADMIN);
     AuthUserDetails userDetails = new AuthUserDetails(user);
+    ValidateTokenResponse expected = ValidateTokenResponse.builder()
+        .valid(true)
+        .userId(7L)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.ADMIN)
+        .build();
     when(jwtService.isInvalid("token")).thenReturn(false);
     when(jwtService.extractUsername("token")).thenReturn("user");
     when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
+    when(authUserMapper.toValidateTokenResponse(userDetails)).thenReturn(expected);
 
     ValidateTokenResponse response = authService.validateToken(request);
 
-    assertTrue(response.isValid());
-    assertEquals(7L, response.getUserId());
-    assertEquals("user", response.getUsername());
-    assertEquals("user@example.com", response.getEmail());
-    assertEquals(Role.ADMIN, response.getRole());
+    verify(authUserMapper).toValidateTokenResponse(userDetails);
+    assertSame(expected, response);
   }
 }

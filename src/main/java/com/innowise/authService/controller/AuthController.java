@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
@@ -45,7 +43,6 @@ public class AuthController {
   public ResponseEntity<RegisterResponse> register(
       @Valid @RequestBody CreateCredentialsRequest request) {
     RegisterResponse response = authService.createCredentials(request);
-    log.info("Credentials created for username: {}", request.getUsername());
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -61,7 +58,6 @@ public class AuthController {
   @PostMapping("/login")
   public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
     TokenResponse response = authService.createTokens(request);
-    log.info("Tokens created for username: {}", request.getUsername());
     return ResponseEntity.ok(response);
   }
 
@@ -76,7 +72,6 @@ public class AuthController {
   @PostMapping("/refresh")
   public ResponseEntity<TokenResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
     TokenResponse response = authService.refreshTokens(request);
-    log.info("Tokens refreshed");
     return ResponseEntity.ok(response);
   }
 
@@ -93,7 +88,6 @@ public class AuthController {
   public ResponseEntity<ValidateTokenResponse> validateToken(
       @Valid @RequestBody ValidateTokenRequest request) {
     ValidateTokenResponse response = authService.validateToken(request);
-    log.info("Token validated for userId: {}", response.getUserId());
     return ResponseEntity.ok(response);
   }
 }

@@ -17,13 +17,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 public class JwtServiceImpl implements JwtService {
 
   @Value("${jwt.secret}")
@@ -57,13 +55,9 @@ public class JwtServiceImpl implements JwtService {
       extractAllClaims(token);
       return false;
     } catch (ExpiredJwtException e) {
-      log.warn("JWT token is expired: {}", e.getMessage());
     } catch (MalformedJwtException | UnsupportedJwtException | SecurityException e) {
-      log.warn("Invalid JWT token: {}", e.getMessage());
     } catch (IllegalArgumentException e) {
-      log.error("JWT claims string is empty: {}", e.getMessage());
     } catch (Exception e) {
-      log.error("Unexpected JWT validation error", e);
     }
     return true;
   }

@@ -7,6 +7,7 @@ import com.innowise.authService.exception.CredentialsConflictException;
 import com.innowise.authService.exception.LoginFailedException;
 import com.innowise.authService.exception.RefreshTokenRejectedException;
 import com.innowise.authService.exception.TokenValidationFailedException;
+import com.innowise.authService.mapper.AuthUserMapper;
 import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
 import com.innowise.authService.model.dto.request.LoginRequest;
 import com.innowise.authService.model.dto.request.RefreshTokenRequest;
@@ -20,7 +21,6 @@ import com.innowise.authService.service.AuthService;
 import com.innowise.authService.service.CustomUserDetailsService;
 import com.innowise.authService.service.JwtService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
@@ -39,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
   private final JwtService jwtService;
   private final PasswordEncoder passwordEncoder;
   private final CustomUserDetailsService customUserDetailsService;
+  private final AuthUserMapper authUserMapper;
 
   @Override
   public RegisterResponse createCredentials(CreateCredentialsRequest request) {
@@ -49,20 +49,10 @@ public class AuthServiceImpl implements AuthService {
       throw new CredentialsConflictException("email", request.getEmail());
     }
 
-    AuthUser user = new AuthUser();
-    user.setUsername(request.getUsername());
-    user.setEmail(request.getEmail());
-    user.setPassword(passwordEncoder.encode(request.getPassword()));
-    user.setRole(request.getRole());
-
+    String encodedPassword = passwordEncoder.encode(request.getPassword());
+    AuthUser user = authUserMapper.toEntity(request, encodedPassword);
     AuthUser savedUser = authUserRepository.save(user);
-    log.info("Credentials created for username: {}", request.getUsername());
-    return RegisterResponse.builder()
-        .userId(savedUser.getId())
-        .username(savedUser.getUsername())
-        .email(savedUser.getEmail())
-        .role(savedUser.getRole())
-        .build();
+    return authUserMapper.toRegisterResponse(savedUser);
   }
 
   @Override
@@ -75,7 +65,6 @@ public class AuthServiceImpl implements AuthService {
       Authentication authentication = authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
       UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-      log.info("JWT tokens created for username: {}", userDetails.getUsername());
       return jwtService.generateTokens(userDetails);
     } catch (BadCredentialsException ex) {
       throw new LoginFailedException("Incorrect username or password");
@@ -108,13 +97,7 @@ public class AuthServiceImpl implements AuthService {
         throw new TokenValidationFailedException("Unsupported user details");
       }
 
-      return ValidateTokenResponse.builder()
-          .valid(true)
-          .userId(authUserDetails.getUserId())
-          .username(authUserDetails.getUsername())
-          .email(authUserDetails.getEmail())
-          .role(authUserDetails.getRole())
-          .build();
+      return authUserMapper.toValidateTokenResponse(authUserDetails);
     } catch (AuthUserNotFoundException ex) {
       throw ex;
     } catch (Exception ex) {
