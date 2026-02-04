@@ -1,6 +1,6 @@
-package com.innowise.authService.model.entity;
+package com.innowise.authservice.model.entity;
 
-import com.innowise.authService.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

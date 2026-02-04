@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.innowise</groupId>
-	<artifactId>authService</artifactId>
+	<artifactId>authservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>authService</name>
 	<description>Internship project - Auth service</description>

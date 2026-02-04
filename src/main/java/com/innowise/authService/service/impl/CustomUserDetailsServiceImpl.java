@@ -1,10 +1,10 @@
-package com.innowise.authService.service.impl;
+package com.innowise.authservice.service.impl;
 
-import com.innowise.authService.config.security.AuthUserDetails;
-import com.innowise.authService.exception.AuthUserNotFoundException;
-import com.innowise.authService.model.entity.AuthUser;
-import com.innowise.authService.repository.AuthUserRepository;
-import com.innowise.authService.service.CustomUserDetailsService;
+import com.innowise.authservice.config.security.AuthUserDetails;
+import com.innowise.authservice.exception.AuthUserNotFoundException;
+import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.repository.AuthUserRepository;
+import com.innowise.authservice.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;

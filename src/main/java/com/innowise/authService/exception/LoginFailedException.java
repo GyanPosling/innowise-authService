@@ -1,4 +1,4 @@
-package com.innowise.authService.exception;
+package com.innowise.authservice.exception;
 
 public class LoginFailedException extends RuntimeException {
 

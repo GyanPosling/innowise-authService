@@ -1,4 +1,4 @@
-package com.innowise.authService.exception;
+package com.innowise.authservice.exception;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;

@@ -1,32 +1,30 @@
-package com.innowise.authService.service.impl;
+package com.innowise.authservice.service.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.innowise.authService.config.security.AuthUserDetails;
-import com.innowise.authService.exception.AccessTokenRejectedException;
-import com.innowise.authService.exception.AuthUserNotFoundException;
-import com.innowise.authService.exception.CredentialsConflictException;
-import com.innowise.authService.exception.LoginFailedException;
-import com.innowise.authService.exception.RefreshTokenRejectedException;
-import com.innowise.authService.mapper.AuthUserMapper;
-import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
-import com.innowise.authService.model.dto.request.LoginRequest;
-import com.innowise.authService.model.dto.request.RefreshTokenRequest;
-import com.innowise.authService.model.dto.request.ValidateTokenRequest;
-import com.innowise.authService.model.dto.response.RegisterResponse;
-import com.innowise.authService.model.dto.response.TokenResponse;
-import com.innowise.authService.model.dto.response.ValidateTokenResponse;
-import com.innowise.authService.model.entity.AuthUser;
-import com.innowise.authService.model.entity.type.Role;
-import com.innowise.authService.repository.AuthUserRepository;
-import com.innowise.authService.service.CustomUserDetailsService;
-import com.innowise.authService.service.JwtService;
+import com.innowise.authservice.config.security.AuthUserDetails;
+import com.innowise.authservice.exception.AccessTokenRejectedException;
+import com.innowise.authservice.exception.AuthUserNotFoundException;
+import com.innowise.authservice.exception.CredentialsConflictException;
+import com.innowise.authservice.exception.LoginFailedException;
+import com.innowise.authservice.exception.RefreshTokenRejectedException;
+import com.innowise.authservice.mapper.AuthUserMapper;
+import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
+import com.innowise.authservice.model.dto.request.LoginRequest;
+import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
+import com.innowise.authservice.model.dto.request.ValidateTokenRequest;
+import com.innowise.authservice.model.dto.response.RegisterResponse;
+import com.innowise.authservice.model.dto.response.TokenResponse;
+import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
+import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.repository.AuthUserRepository;
+import com.innowise.authservice.service.CustomUserDetailsService;
+import com.innowise.authservice.service.JwtService;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -60,7 +58,7 @@ class AuthServiceImplTest {
   private Authentication authentication;
 
   @InjectMocks
-  private AuthServiceImpl authService;
+  private com.innowise.authservice.service.impl.AuthServiceImpl authService;
 
   @Test
   void createCredentials_whenUsernameExists_throwsConflict() {

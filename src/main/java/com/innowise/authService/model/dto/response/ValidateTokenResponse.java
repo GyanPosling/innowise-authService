@@ -1,6 +1,6 @@
-package com.innowise.authService.model.dto.response;
+package com.innowise.authservice.model.dto.response;
 
-import com.innowise.authService.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.innowise.authService.exception;
+package com.innowise.authservice.exception;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
-package com.innowise.authService.config.security;
+package com.innowise.authservice.config.security;
 
-import com.innowise.authService.model.entity.AuthUser;
-import com.innowise.authService.model.entity.type.Role;
+import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.model.entity.type.Role;
 import java.util.Collection;
 import java.util.Collections;
 import org.springframework.security.core.GrantedAuthority;

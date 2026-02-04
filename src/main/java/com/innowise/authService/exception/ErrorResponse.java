@@ -1,4 +1,4 @@
-package com.innowise.authService.exception;
+package com.innowise.authservice.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

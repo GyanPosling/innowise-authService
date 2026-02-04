@@ -1,10 +1,10 @@
-package com.innowise.authService.mapper;
+package com.innowise.authservice.mapper;
 
-import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
-import com.innowise.authService.model.dto.response.RegisterResponse;
-import com.innowise.authService.model.dto.response.ValidateTokenResponse;
-import com.innowise.authService.model.entity.AuthUser;
-import com.innowise.authService.config.security.AuthUserDetails;
+import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
+import com.innowise.authservice.model.dto.response.RegisterResponse;
+import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
+import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.config.security.AuthUserDetails;
 import org.springframework.stereotype.Component;
 
 @Component

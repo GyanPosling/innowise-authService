@@ -1,13 +1,13 @@
-package com.innowise.authService.service.impl;
+package com.innowise.authservice.service.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.innowise.authService.config.security.AuthUserDetails;
-import com.innowise.authService.model.dto.response.TokenResponse;
-import com.innowise.authService.model.entity.AuthUser;
-import com.innowise.authService.model.entity.type.Role;
+import com.innowise.authservice.config.security.AuthUserDetails;
+import com.innowise.authservice.model.dto.response.TokenResponse;
+import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.model.entity.type.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;

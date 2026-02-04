@@ -1,6 +1,6 @@
-package com.innowise.authService.model.dto.request;
+package com.innowise.authservice.model.dto.request;
 
-import com.innowise.authService.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

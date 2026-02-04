@@ -1,4 +1,4 @@
-package com.innowise.authService.controller;
+package com.innowise.authservice.controller;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,16 +10,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.authService.exception.GlobalExceptionHandler;
-import com.innowise.authService.model.dto.request.CreateCredentialsRequest;
-import com.innowise.authService.model.dto.request.LoginRequest;
-import com.innowise.authService.model.dto.request.RefreshTokenRequest;
-import com.innowise.authService.model.dto.request.ValidateTokenRequest;
-import com.innowise.authService.model.dto.response.RegisterResponse;
-import com.innowise.authService.model.dto.response.TokenResponse;
-import com.innowise.authService.model.dto.response.ValidateTokenResponse;
-import com.innowise.authService.model.entity.type.Role;
-import com.innowise.authService.service.AuthService;
+import com.innowise.authservice.exception.GlobalExceptionHandler;
+import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
+import com.innowise.authservice.model.dto.request.LoginRequest;
+import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
+import com.innowise.authservice.model.dto.request.ValidateTokenRequest;
+import com.innowise.authservice.model.dto.response.RegisterResponse;
+import com.innowise.authservice.model.dto.response.TokenResponse;
+import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
+import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

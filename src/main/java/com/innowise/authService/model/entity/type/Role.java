@@ -1,4 +1,4 @@
-package com.innowise.authService.model.entity.type;
+package com.innowise.authservice.model.entity.type;
 
 public enum Role {
   ADMIN,

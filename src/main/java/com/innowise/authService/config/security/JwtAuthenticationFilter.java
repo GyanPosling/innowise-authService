@@ -1,7 +1,7 @@
-package com.innowise.authService.config.security;
+package com.innowise.authservice.config.security;
 
-import com.innowise.authService.service.JwtService;
-import com.innowise.authService.service.CustomUserDetailsService;
+import com.innowise.authservice.service.JwtService;
+import com.innowise.authservice.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

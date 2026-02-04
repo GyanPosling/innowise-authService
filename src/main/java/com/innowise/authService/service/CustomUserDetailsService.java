@@ -1,4 +1,4 @@
-package com.innowise.authService.service;
+package com.innowise.authservice.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
 

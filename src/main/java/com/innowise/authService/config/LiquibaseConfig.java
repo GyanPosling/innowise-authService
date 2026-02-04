@@ -1,4 +1,4 @@
-package com.innowise.authService.config;
+package com.innowise.authservice.config;
 
 import javax.sql.DataSource;
 import liquibase.integration.spring.SpringLiquibase;

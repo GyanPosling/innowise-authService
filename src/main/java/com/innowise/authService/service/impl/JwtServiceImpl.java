@@ -1,15 +1,12 @@
-package com.innowise.authService.service.impl;
+package com.innowise.authservice.service.impl;
 
-import com.innowise.authService.config.security.AuthUserDetails;
-import com.innowise.authService.model.dto.response.TokenResponse;
-import com.innowise.authService.model.entity.type.Role;
-import com.innowise.authService.service.JwtService;
+import com.innowise.authservice.config.security.AuthUserDetails;
+import com.innowise.authservice.model.dto.response.TokenResponse;
+import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -54,22 +51,14 @@ public class JwtServiceImpl implements JwtService {
     try {
       extractAllClaims(token);
       return false;
-    } catch (ExpiredJwtException e) {
-    } catch (MalformedJwtException | UnsupportedJwtException | SecurityException e) {
-    } catch (IllegalArgumentException e) {
     } catch (Exception e) {
+      return true;
     }
-    return true;
   }
 
   @Override
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
-  }
-
-  @Override
-  public Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
   }
 
   @Override

@@ -1,8 +1,7 @@
-package com.innowise.authService.service;
+package com.innowise.authservice.service;
 
-import com.innowise.authService.model.dto.response.TokenResponse;
-import com.innowise.authService.model.entity.type.Role;
-import java.util.Date;
+import com.innowise.authservice.model.dto.response.TokenResponse;
+import com.innowise.authservice.model.entity.type.Role;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface JwtService {
@@ -14,9 +13,6 @@ public interface JwtService {
   boolean isInvalid(String token);
 
   String extractUsername(String token);
-
-  Date extractExpiration(String token);
-
   Long extractUserId(String token);
 
   Role extractRole(String token);

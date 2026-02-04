@@ -1,4 +1,4 @@
-package com.innowise.authService;
+package com.innowise.authservice;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
