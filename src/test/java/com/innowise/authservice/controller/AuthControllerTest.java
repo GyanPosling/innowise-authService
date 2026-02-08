@@ -57,7 +57,6 @@ class AuthControllerTest {
         .username("user")
         .email("user@example.com")
         .password("password123")
-        .role(Role.USER)
         .build();
     RegisterResponse response = RegisterResponse.builder()
         .userId(1L)
@@ -97,10 +96,6 @@ class AuthControllerTest {
         .accessToken("access")
         .refreshToken("refresh")
         .tokenType("Bearer")
-        .userId(1L)
-        .username("user")
-        .email("user@example.com")
-        .role(Role.USER)
         .build();
     when(authService.createTokens(any(LoginRequest.class))).thenReturn(response);
 
@@ -110,11 +105,17 @@ class AuthControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken", is("access")))
         .andExpect(jsonPath("$.refreshToken", is("refresh")))
-        .andExpect(jsonPath("$.tokenType", is("Bearer")))
-        .andExpect(jsonPath("$.userId", is(1)))
-        .andExpect(jsonPath("$.username", is("user")))
-        .andExpect(jsonPath("$.email", is("user@example.com")))
-        .andExpect(jsonPath("$.role", is("USER")));
+        .andExpect(jsonPath("$.tokenType", is("Bearer")));
+  }
+
+  @Test
+  void login_withInvalidPayload_returnsBadRequest() throws Exception {
+    mockMvc.perform(post("/api/v1/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
+        .andExpect(status().isBadRequest());
+
+    verify(authService, never()).createTokens(any(LoginRequest.class));
   }
 
   @Test
@@ -126,10 +127,6 @@ class AuthControllerTest {
         .accessToken("access")
         .refreshToken("refresh")
         .tokenType("Bearer")
-        .userId(1L)
-        .username("user")
-        .email("user@example.com")
-        .role(Role.USER)
         .build();
     when(authService.refreshTokens(any(RefreshTokenRequest.class))).thenReturn(response);
 
@@ -139,11 +136,17 @@ class AuthControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.accessToken", is("access")))
         .andExpect(jsonPath("$.refreshToken", is("refresh")))
-        .andExpect(jsonPath("$.tokenType", is("Bearer")))
-        .andExpect(jsonPath("$.userId", is(1)))
-        .andExpect(jsonPath("$.username", is("user")))
-        .andExpect(jsonPath("$.email", is("user@example.com")))
-        .andExpect(jsonPath("$.role", is("USER")));
+        .andExpect(jsonPath("$.tokenType", is("Bearer")));
+  }
+
+  @Test
+  void refresh_withInvalidPayload_returnsBadRequest() throws Exception {
+    mockMvc.perform(post("/api/v1/auth/refresh")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
+        .andExpect(status().isBadRequest());
+
+    verify(authService, never()).refreshTokens(any(RefreshTokenRequest.class));
   }
 
   @Test
@@ -169,5 +172,15 @@ class AuthControllerTest {
         .andExpect(jsonPath("$.username", is("user")))
         .andExpect(jsonPath("$.email", is("user@example.com")))
         .andExpect(jsonPath("$.role", is("USER")));
+  }
+
+  @Test
+  void validate_withInvalidPayload_returnsBadRequest() throws Exception {
+    mockMvc.perform(post("/api/v1/auth/validate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
+        .andExpect(status().isBadRequest());
+
+    verify(authService, never()).validateToken(any(ValidateTokenRequest.class));
   }
 }

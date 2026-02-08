@@ -1,7 +1,8 @@
 package com.innowise.authservice.config.security;
 
-import com.innowise.authservice.service.JwtService;
 import com.innowise.authservice.service.CustomUserDetailsService;
+import com.innowise.authservice.service.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
@@ -28,8 +31,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
 
     String jwtToken = getTokenFromRequest(request);
-    if (jwtToken != null && !jwtService.isInvalid(jwtToken)) {
-      setAuthentication(jwtToken);
+    if (jwtToken != null) {
+      try {
+        jwtService.validateToken(jwtToken);
+        setAuthentication(jwtToken);
+      } catch (JwtException | IllegalArgumentException ex) {
+        log.debug("Invalid JWT", ex);
+      }
     }
     filterChain.doFilter(request, response);
   }

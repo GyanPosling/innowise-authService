@@ -1,10 +1,12 @@
 package com.innowise.authservice.service.impl;
 
 import com.innowise.authservice.config.security.AuthUserDetails;
+import com.innowise.authservice.mapper.TokenResponseMapper;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -17,9 +19,13 @@ import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
+
+  private final TokenResponseMapper tokenResponseMapper;
 
   @Value("${jwt.secret}")
   private String secret;
@@ -33,7 +39,6 @@ public class JwtServiceImpl implements JwtService {
   @Override
   public TokenResponse generateTokens(UserDetails userDetails) {
     return buildTokenResponse(
-        userDetails,
         generateToken(userDetails, tokenExpiration),
         generateToken(userDetails, refreshTokenExpiration));
   }
@@ -41,18 +46,19 @@ public class JwtServiceImpl implements JwtService {
   @Override
   public TokenResponse refreshTokens(String refreshToken, UserDetails userDetails) {
     return buildTokenResponse(
-        userDetails,
         generateToken(userDetails, tokenExpiration),
         refreshToken);
   }
 
   @Override
-  public boolean isInvalid(String token) {
-    try {
-      extractAllClaims(token);
-      return false;
-    } catch (Exception e) {
-      return true;
+  public void validateToken(String token) {
+    Claims claims = extractAllClaims(token);
+    Date expiration = claims.getExpiration();
+    if (expiration == null) {
+      throw new JwtException("Token expiration is missing");
+    }
+    if (expiration.before(new Date())) {
+      throw new JwtException("Token is expired");
     }
   }
 
@@ -90,21 +96,8 @@ public class JwtServiceImpl implements JwtService {
         .compact();
   }
 
-  private TokenResponse buildTokenResponse(
-      UserDetails userDetails, String accessToken, String refreshToken) {
-    TokenResponse.TokenResponseBuilder builder = TokenResponse.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .tokenType("Bearer")
-        .username(userDetails.getUsername());
-
-    if (userDetails instanceof AuthUserDetails authUserDetails) {
-      builder.userId(authUserDetails.getUserId())
-          .email(authUserDetails.getEmail())
-          .role(authUserDetails.getRole());
-    }
-
-    return builder.build();
+  private TokenResponse buildTokenResponse(String accessToken, String refreshToken) {
+    return tokenResponseMapper.toResponse(accessToken, refreshToken);
   }
 
   private <T> T extractClaim(String token, Function<Claims, T> function) {

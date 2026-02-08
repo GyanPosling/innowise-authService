@@ -1,5 +1,6 @@
 package com.innowise.authservice.config.security;
 
+import com.innowise.authservice.model.entity.type.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +36,7 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/v3/api-docs/**").permitAll()
-            .anyRequest().hasRole("ADMIN"))
+            .anyRequest().hasRole(Role.ADMIN.name()))
         .sessionManagement(
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

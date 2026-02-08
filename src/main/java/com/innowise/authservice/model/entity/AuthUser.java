@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "auth_users")
@@ -49,34 +50,26 @@ public class AuthUser {
   private LocalDateTime updatedAt;
 
   @Column(name = "account_not_expired", nullable = false)
-  private Boolean accountNotExpired;
+  @ColumnDefault("true")
+  private boolean accountNotExpired = true;
 
   @Column(name = "accounts_not_locked", nullable = false)
-  private Boolean accountsNotLocked;
+  @ColumnDefault("true")
+  private boolean accountsNotLocked = true;
 
   @Column(name = "credentials_not_expired", nullable = false)
-  private Boolean credentialsNotExpired;
+  @ColumnDefault("true")
+  private boolean credentialsNotExpired = true;
 
   @Column(name = "enabled", nullable = false)
-  private Boolean enabled;
+  @ColumnDefault("true")
+  private boolean enabled = true;
 
   @PrePersist
   private void onCreate() {
     createdAt = LocalDateTime.now();
     updatedAt = LocalDateTime.now();
 
-    if (accountNotExpired == null) {
-      accountNotExpired = true;
-    }
-    if (accountsNotLocked == null) {
-      accountsNotLocked = true;
-    }
-    if (credentialsNotExpired == null) {
-      credentialsNotExpired = true;
-    }
-    if (enabled == null) {
-      enabled = true;
-    }
     if (role == null) {
       role = Role.USER;
     }
@@ -88,18 +81,18 @@ public class AuthUser {
   }
 
   public boolean isAccountNonExpired() {
-    return Boolean.TRUE.equals(accountNotExpired);
+    return accountNotExpired;
   }
 
   public boolean isAccountNonLocked() {
-    return Boolean.TRUE.equals(accountsNotLocked);
+    return accountsNotLocked;
   }
 
   public boolean isCredentialsNonExpired() {
-    return Boolean.TRUE.equals(credentialsNotExpired);
+    return credentialsNotExpired;
   }
 
   public boolean isEnabled() {
-    return Boolean.TRUE.equals(enabled);
+    return enabled;
   }
 }

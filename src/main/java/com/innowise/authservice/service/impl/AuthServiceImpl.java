@@ -20,6 +20,7 @@ import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.AuthService;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -74,7 +75,9 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public TokenResponse refreshTokens(RefreshTokenRequest request) {
     String refreshToken = request.getRefreshToken();
-    if (jwtService.isInvalid(refreshToken)) {
+    try {
+      jwtService.validateToken(refreshToken);
+    } catch (JwtException | IllegalArgumentException ex) {
       throw new RefreshTokenRejectedException();
     }
 
@@ -86,7 +89,9 @@ public class AuthServiceImpl implements AuthService {
   @Override
   public ValidateTokenResponse validateToken(ValidateTokenRequest request) {
     String token = request.getToken();
-    if (jwtService.isInvalid(token)) {
+    try {
+      jwtService.validateToken(token);
+    } catch (JwtException | IllegalArgumentException ex) {
       throw new AccessTokenRejectedException();
     }
 

@@ -4,17 +4,15 @@ import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
 import java.util.Collection;
 import java.util.Collections;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@RequiredArgsConstructor
 public class AuthUserDetails implements UserDetails {
 
   private final AuthUser user;
-
-  public AuthUserDetails(AuthUser user) {
-    this.user = user;
-  }
 
   public Long getUserId() {
     return user.getId();

@@ -3,6 +3,7 @@ package com.innowise.authservice.service.impl;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +26,7 @@ import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
+import io.jsonwebtoken.JwtException;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +68,6 @@ class AuthServiceImplTest {
         .username("user")
         .email("user@example.com")
         .password("password123")
-        .role(Role.USER)
         .build();
     when(authUserRepository.existsByUsername("user")).thenReturn(true);
 
@@ -79,7 +80,6 @@ class AuthServiceImplTest {
         .username("user")
         .email("user@example.com")
         .password("password123")
-        .role(Role.USER)
         .build();
     when(authUserRepository.existsByUsername("user")).thenReturn(false);
     when(authUserRepository.existsByEmail("user@example.com")).thenReturn(true);
@@ -93,7 +93,6 @@ class AuthServiceImplTest {
         .username("user")
         .email("user@example.com")
         .password("password123")
-        .role(Role.USER)
         .build();
     AuthUser mappedUser = new AuthUser();
     mappedUser.setUsername("user");
@@ -127,7 +126,10 @@ class AuthServiceImplTest {
 
   @Test
   void createTokens_whenUserNotFound_throwsNotFound() {
-    LoginRequest request = new LoginRequest("user", "password123");
+    LoginRequest request = LoginRequest.builder()
+        .username("user")
+        .password("password123")
+        .build();
     when(authUserRepository.findByUsername("user")).thenReturn(Optional.empty());
 
     assertThrows(AuthUserNotFoundException.class, () -> authService.createTokens(request));
@@ -135,7 +137,10 @@ class AuthServiceImplTest {
 
   @Test
   void createTokens_whenBadCredentials_throwsLoginFailed() {
-    LoginRequest request = new LoginRequest("user", "password123");
+    LoginRequest request = LoginRequest.builder()
+        .username("user")
+        .password("password123")
+        .build();
     when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenThrow(new BadCredentialsException("bad credentials"));
@@ -145,10 +150,13 @@ class AuthServiceImplTest {
 
   @Test
   void createTokens_whenAuthenticated_returnsTokens() {
-    LoginRequest request = new LoginRequest("user", "password123");
+    LoginRequest request = LoginRequest.builder()
+        .username("user")
+        .password("password123")
+        .build();
     UserDetails userDetails = new User("user", "pass", new java.util.ArrayList<>());
     TokenResponse expected = TokenResponse.builder().accessToken("access").refreshToken("refresh")
-        .tokenType("Bearer").username("user").build();
+        .tokenType("Bearer").build();
     when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenReturn(authentication);
@@ -162,19 +170,22 @@ class AuthServiceImplTest {
 
   @Test
   void refreshTokens_whenInvalid_throwsRejected() {
-    RefreshTokenRequest request = new RefreshTokenRequest("bad-token");
-    when(jwtService.isInvalid("bad-token")).thenReturn(true);
+    RefreshTokenRequest request = RefreshTokenRequest.builder()
+        .refreshToken("bad-token")
+        .build();
+    doThrow(new JwtException("invalid token")).when(jwtService).validateToken("bad-token");
 
     assertThrows(RefreshTokenRejectedException.class, () -> authService.refreshTokens(request));
   }
 
   @Test
   void refreshTokens_whenValid_returnsTokens() {
-    RefreshTokenRequest request = new RefreshTokenRequest("refresh-token");
+    RefreshTokenRequest request = RefreshTokenRequest.builder()
+        .refreshToken("refresh-token")
+        .build();
     UserDetails userDetails = new User("user", "pass", new java.util.ArrayList<>());
     TokenResponse expected = TokenResponse.builder().accessToken("access").refreshToken("refresh-token")
-        .tokenType("Bearer").username("user").build();
-    when(jwtService.isInvalid("refresh-token")).thenReturn(false);
+        .tokenType("Bearer").build();
     when(jwtService.extractUsername("refresh-token")).thenReturn("user");
     when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
     when(jwtService.refreshTokens("refresh-token", userDetails)).thenReturn(expected);
@@ -186,15 +197,19 @@ class AuthServiceImplTest {
 
   @Test
   void validateToken_whenInvalid_throwsRejected() {
-    ValidateTokenRequest request = new ValidateTokenRequest("bad-token");
-    when(jwtService.isInvalid("bad-token")).thenReturn(true);
+    ValidateTokenRequest request = ValidateTokenRequest.builder()
+        .token("bad-token")
+        .build();
+    doThrow(new JwtException("invalid token")).when(jwtService).validateToken("bad-token");
 
     assertThrows(AccessTokenRejectedException.class, () -> authService.validateToken(request));
   }
 
   @Test
   void validateToken_whenValid_returnsUserInfo() {
-    ValidateTokenRequest request = new ValidateTokenRequest("token");
+    ValidateTokenRequest request = ValidateTokenRequest.builder()
+        .token("token")
+        .build();
     AuthUser user = new AuthUser();
     user.setId(7L);
     user.setUsername("user");
@@ -208,7 +223,6 @@ class AuthServiceImplTest {
         .email("user@example.com")
         .role(Role.ADMIN)
         .build();
-    when(jwtService.isInvalid("token")).thenReturn(false);
     when(jwtService.extractUsername("token")).thenReturn("user");
     when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
     when(authUserMapper.toValidateTokenResponse(userDetails)).thenReturn(expected);

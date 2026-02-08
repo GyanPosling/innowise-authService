@@ -10,7 +10,7 @@ public interface JwtService {
 
   TokenResponse refreshTokens(String refreshToken, UserDetails userDetails);
 
-  boolean isInvalid(String token);
+  void validateToken(String token);
 
   String extractUsername(String token);
   Long extractUserId(String token);

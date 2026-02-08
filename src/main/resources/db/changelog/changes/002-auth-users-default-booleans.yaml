@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: authService
+      changes:
+        - addDefaultValue:
+            tableName: auth_users
+            columnName: account_not_expired
+            defaultValueBoolean: true
+        - addDefaultValue:
+            tableName: auth_users
+            columnName: accounts_not_locked
+            defaultValueBoolean: true
+        - addDefaultValue:
+            tableName: auth_users
+            columnName: credentials_not_expired
+            defaultValueBoolean: true
+        - addDefaultValue:
+            tableName: auth_users
+            columnName: enabled
+            defaultValueBoolean: true
