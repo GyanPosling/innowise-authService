@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: changes/001-create-auth-users-table.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: changes/002-auth-users-default-booleans.yaml
+      relativeToChangelogFile: true
