@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["tasks/AUTH-0", "main"]
+    branches: ["tasks/AUTH-2", "main"]
   pull_request:
-    branches: ["tasks/AUTH-0", "main"]
+    branches: ["tasks/AUTH-2", "main"]
 
 jobs:
   ci-build-test-analysis-upload:
