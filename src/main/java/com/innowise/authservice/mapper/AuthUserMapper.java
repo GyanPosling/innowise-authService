@@ -1,8 +1,7 @@
 package com.innowise.authservice.mapper;
 
-import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
+import com.innowise.authservice.model.dto.request.RegisterRequest;
 import com.innowise.authservice.model.dto.response.PromoteUserResponse;
-import com.innowise.authservice.model.dto.response.RegisterResponse;
 import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserMapper {
 
-  public AuthUser toEntity(CreateCredentialsRequest request, String encodedPassword) {
+  public AuthUser toEntity(RegisterRequest request, String encodedPassword) {
     if (request == null) {
       return null;
     }
@@ -22,18 +21,6 @@ public class AuthUserMapper {
     user.setPassword(encodedPassword);
     user.setRole(Role.USER);
     return user;
-  }
-
-  public RegisterResponse toRegisterResponse(AuthUser user) {
-    if (user == null) {
-      return null;
-    }
-    return RegisterResponse.builder()
-        .userId(user.getId())
-        .username(user.getUsername())
-        .email(user.getEmail())
-        .role(user.getRole())
-        .build();
   }
 
   public ValidateTokenResponse toValidateTokenResponse(AuthUserDetails userDetails) {

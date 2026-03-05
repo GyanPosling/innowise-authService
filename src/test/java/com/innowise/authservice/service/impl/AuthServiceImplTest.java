@@ -10,20 +10,18 @@ import static org.mockito.Mockito.when;
 import com.innowise.authservice.config.security.AuthUserDetails;
 import com.innowise.authservice.exception.AccessTokenRejectedException;
 import com.innowise.authservice.exception.AuthUserNotFoundException;
-import com.innowise.authservice.exception.CredentialsConflictException;
 import com.innowise.authservice.exception.LoginFailedException;
 import com.innowise.authservice.exception.RefreshTokenRejectedException;
 import com.innowise.authservice.mapper.AuthUserMapper;
-import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
 import com.innowise.authservice.model.dto.request.LoginRequest;
 import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
 import com.innowise.authservice.model.dto.request.ValidateTokenRequest;
-import com.innowise.authservice.model.dto.response.RegisterResponse;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.repository.AuthUserRepository;
+import com.innowise.authservice.client.UserServiceClient;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.JwtException;
@@ -57,72 +55,12 @@ class AuthServiceImplTest {
   @Mock
   private AuthUserMapper authUserMapper;
   @Mock
+  private UserServiceClient userServiceClient;
+  @Mock
   private Authentication authentication;
 
   @InjectMocks
   private com.innowise.authservice.service.impl.AuthServiceImpl authService;
-
-  @Test
-  void createCredentials_whenUsernameExists_throwsConflict() {
-    CreateCredentialsRequest request = CreateCredentialsRequest.builder()
-        .username("user")
-        .email("user@example.com")
-        .password("password123")
-        .build();
-    when(authUserRepository.existsByUsername("user")).thenReturn(true);
-
-    assertThrows(CredentialsConflictException.class, () -> authService.createCredentials(request));
-  }
-
-  @Test
-  void createCredentials_whenEmailExists_throwsConflict() {
-    CreateCredentialsRequest request = CreateCredentialsRequest.builder()
-        .username("user")
-        .email("user@example.com")
-        .password("password123")
-        .build();
-    when(authUserRepository.existsByUsername("user")).thenReturn(false);
-    when(authUserRepository.existsByEmail("user@example.com")).thenReturn(true);
-
-    assertThrows(CredentialsConflictException.class, () -> authService.createCredentials(request));
-  }
-
-  @Test
-  void createCredentials_whenValid_savesUserAndReturnsResponse() {
-    CreateCredentialsRequest request = CreateCredentialsRequest.builder()
-        .username("user")
-        .email("user@example.com")
-        .password("password123")
-        .build();
-    AuthUser mappedUser = new AuthUser();
-    mappedUser.setUsername("user");
-    mappedUser.setEmail("user@example.com");
-    mappedUser.setPassword("encoded");
-    mappedUser.setRole(Role.USER);
-    AuthUser savedUser = new AuthUser();
-    savedUser.setId(10L);
-    savedUser.setUsername("user");
-    savedUser.setEmail("user@example.com");
-    savedUser.setPassword("encoded");
-    savedUser.setRole(Role.USER);
-    RegisterResponse expected = RegisterResponse.builder()
-        .userId(10L)
-        .username("user")
-        .email("user@example.com")
-        .role(Role.USER)
-        .build();
-    when(passwordEncoder.encode("password123")).thenReturn("encoded");
-    when(authUserMapper.toEntity(request, "encoded")).thenReturn(mappedUser);
-    when(authUserRepository.save(mappedUser)).thenReturn(savedUser);
-    when(authUserMapper.toRegisterResponse(savedUser)).thenReturn(expected);
-
-    RegisterResponse response = authService.createCredentials(request);
-
-    verify(authUserMapper).toEntity(request, "encoded");
-    verify(authUserRepository).save(mappedUser);
-    verify(authUserMapper).toRegisterResponse(savedUser);
-    assertSame(expected, response);
-  }
 
   @Test
   void createTokens_whenUserNotFound_throwsNotFound() {
@@ -160,7 +98,7 @@ class AuthServiceImplTest {
     when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenReturn(authentication);
-    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
     when(jwtService.generateTokens(userDetails)).thenReturn(expected);
 
     TokenResponse response = authService.createTokens(request);

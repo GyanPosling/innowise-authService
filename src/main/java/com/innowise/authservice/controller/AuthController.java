@@ -1,8 +1,8 @@
 package com.innowise.authservice.controller;
 
-import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
 import com.innowise.authservice.model.dto.request.LoginRequest;
 import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
+import com.innowise.authservice.model.dto.request.RegisterRequest;
 import com.innowise.authservice.model.dto.request.ValidateTokenRequest;
 import com.innowise.authservice.model.dto.response.RegisterResponse;
 import com.innowise.authservice.model.dto.response.TokenResponse;
@@ -41,8 +41,8 @@ public class AuthController {
   })
   @PostMapping("/register")
   public ResponseEntity<RegisterResponse> register(
-      @Valid @RequestBody CreateCredentialsRequest request) {
-    RegisterResponse response = authService.createCredentials(request);
+      @Valid @RequestBody RegisterRequest request) {
+    RegisterResponse response = authService.register(request);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
@@ -91,3 +91,4 @@ public class AuthController {
     return ResponseEntity.ok(response);
   }
 }
+

@@ -82,6 +82,7 @@ public class JwtServiceImpl implements JwtService {
     if (userDetails instanceof AuthUserDetails authUserDetails) {
       claims.put("userId", authUserDetails.getUserId());
       claims.put("role", authUserDetails.getRole().name());
+      claims.put("email", authUserDetails.getEmail());
     }
 
     long now = System.currentTimeMillis();

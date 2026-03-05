@@ -11,9 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innowise.authservice.exception.GlobalExceptionHandler;
-import com.innowise.authservice.model.dto.request.CreateCredentialsRequest;
 import com.innowise.authservice.model.dto.request.LoginRequest;
 import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
+import com.innowise.authservice.model.dto.request.RegisterRequest;
 import com.innowise.authservice.model.dto.request.ValidateTokenRequest;
 import com.innowise.authservice.model.dto.response.RegisterResponse;
 import com.innowise.authservice.model.dto.response.TokenResponse;
@@ -53,10 +53,12 @@ class AuthControllerTest {
 
   @Test
   void register_returnsCreated() throws Exception {
-    CreateCredentialsRequest request = CreateCredentialsRequest.builder()
+    RegisterRequest request = RegisterRequest.builder()
         .username("user")
         .email("user@example.com")
         .password("password123")
+        .name("First")
+        .surname("Last")
         .build();
     RegisterResponse response = RegisterResponse.builder()
         .userId(1L)
@@ -64,7 +66,7 @@ class AuthControllerTest {
         .email("user@example.com")
         .role(Role.USER)
         .build();
-    when(authService.createCredentials(any(CreateCredentialsRequest.class))).thenReturn(response);
+    when(authService.register(any(RegisterRequest.class))).thenReturn(response);
 
     mockMvc.perform(post("/api/v1/auth/register")
             .contentType(MediaType.APPLICATION_JSON)
@@ -83,7 +85,7 @@ class AuthControllerTest {
             .content("{}"))
         .andExpect(status().isBadRequest());
 
-    verify(authService, never()).createCredentials(any(CreateCredentialsRequest.class));
+    verify(authService, never()).register(any(RegisterRequest.class));
   }
 
   @Test

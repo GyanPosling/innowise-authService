@@ -17,6 +17,10 @@ jwt:
   secret: ${JWT_SECRET}
   expiration: 3600000
   refresh-expiration: 360000000
+userservice:
+  base-url: ${USERSERVICE_BASE_URL:http://userservice:8080}
+internal:
+  secret: ${INTERNAL_SECRET:}
 admin:
   username: ${ADMIN_USERNAME:}
   email: ${ADMIN_EMAIL:}

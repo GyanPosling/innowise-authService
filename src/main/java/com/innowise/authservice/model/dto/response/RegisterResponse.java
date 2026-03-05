@@ -16,4 +16,7 @@ public class RegisterResponse {
   private String username;
   private String email;
   private Role role;
+  private String accessToken;
+  private String refreshToken;
+  private String tokenType;
 }

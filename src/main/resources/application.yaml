@@ -6,3 +6,9 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
+
+userservice:
+  base-url: ${USERSERVICE_BASE_URL:http://localhost:8081}
+
+internal:
+  secret: ${INTERNAL_SECRET:}
