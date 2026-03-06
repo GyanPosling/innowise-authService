@@ -26,6 +26,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
+  private static final String TOKEN_TYPE_CLAIM = "tokenType";
+
   private final TokenResponseMapper tokenResponseMapper;
 
   @Value("${jwt.secret}")
@@ -61,7 +63,7 @@ public class JwtServiceImpl implements JwtService {
     if (expiration.before(new Date())) {
       throw new JwtException("Token is expired");
     }
-    String tokenType = claims.get("tokenType", String.class);
+    String tokenType = claims.get(TOKEN_TYPE_CLAIM, String.class);
     if (tokenType == null || tokenType.isBlank()) {
       throw new JwtException("Token type is missing");
     }
@@ -89,7 +91,7 @@ public class JwtServiceImpl implements JwtService {
 
   @Override
   public TokenType extractTokenType(String token) {
-    return extractClaim(token, claims -> TokenType.valueOf(claims.get("tokenType", String.class)));
+    return extractClaim(token, claims -> TokenType.valueOf(claims.get(TOKEN_TYPE_CLAIM, String.class)));
   }
 
   private String generateToken(UserDetails userDetails, long expirationMs, TokenType tokenType) {
@@ -99,7 +101,7 @@ public class JwtServiceImpl implements JwtService {
       claims.put("role", authUserDetails.getRole().name());
       claims.put("email", authUserDetails.getEmail());
     }
-    claims.put("tokenType", tokenType.name());
+    claims.put(TOKEN_TYPE_CLAIM, tokenType.name());
 
     long now = System.currentTimeMillis();
     Date expire = new Date(now + expirationMs);
