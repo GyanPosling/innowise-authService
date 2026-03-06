@@ -10,5 +10,5 @@ spring:
 userservice:
   base-url: ${USERSERVICE_BASE_URL:http://localhost:8081}
 
-internal:
-  secret: ${INTERNAL_SECRET:}
+authservice:
+  internal-endpoint-secret: ${AUTHSERVICE_INTERNAL_ENDPOINT_SECRET}

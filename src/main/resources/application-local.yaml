@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:authDB}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Zz3741205}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,13 +14,13 @@ spring:
     enabled: true
     change-log: classpath:/db/changelog/db.changelog-master.yaml
 jwt:
-  secret: ${JWT_SECRET:cR3nB7mX9pQ1tV6kL2sH8dZ5yN0aU4gJ7fE1wR6bT9uM3qP8xS5vK2lC7hD0z}
+  secret: ${JWT_SECRET}
   expiration: 3600000
   refresh-expiration: 360000000
 userservice:
   base-url: ${USERSERVICE_BASE_URL:http://localhost:8081}
-internal:
-  secret: ${INTERNAL_SECRET:}
+authservice:
+  internal-endpoint-secret: ${AUTHSERVICE_INTERNAL_ENDPOINT_SECRET}
 admin:
   username: ${ADMIN_USERNAME:}
   email: ${ADMIN_EMAIL:}

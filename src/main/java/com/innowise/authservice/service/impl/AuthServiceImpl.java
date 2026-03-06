@@ -18,6 +18,7 @@ import com.innowise.authservice.model.dto.response.RegisterResponse;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 import com.innowise.authservice.model.entity.AuthUser;
+import com.innowise.authservice.model.entity.type.TokenType;
 import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.AuthService;
 import com.innowise.authservice.service.CustomUserDetailsService;
@@ -110,6 +111,9 @@ public class AuthServiceImpl implements AuthService {
     String refreshToken = request.getRefreshToken();
     try {
       jwtService.validateToken(refreshToken);
+      if (jwtService.extractTokenType(refreshToken) != TokenType.REFRESH) {
+        throw new RefreshTokenRejectedException();
+      }
     } catch (JwtException | IllegalArgumentException ex) {
       throw new RefreshTokenRejectedException();
     }

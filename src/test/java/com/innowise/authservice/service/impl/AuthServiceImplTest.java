@@ -20,6 +20,7 @@ import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.TokenType;
 import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.client.UserServiceClient;
 import com.innowise.authservice.service.CustomUserDetailsService;
@@ -124,6 +125,7 @@ class AuthServiceImplTest {
     UserDetails userDetails = new User("user", "pass", new java.util.ArrayList<>());
     TokenResponse expected = TokenResponse.builder().accessToken("access").refreshToken("refresh-token")
         .tokenType("Bearer").build();
+    when(jwtService.extractTokenType("refresh-token")).thenReturn(TokenType.REFRESH);
     when(jwtService.extractUsername("refresh-token")).thenReturn("user");
     when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
     when(jwtService.refreshTokens("refresh-token", userDetails)).thenReturn(expected);

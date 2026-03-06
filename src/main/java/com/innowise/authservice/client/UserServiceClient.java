@@ -19,7 +19,7 @@ public class UserServiceClient {
   public UserServiceClient(
       WebClient.Builder webClientBuilder,
       @Value("${userservice.base-url}") String baseUrl,
-      @Value("${internal.secret:}") String internalSecret) {
+      @Value("${authservice.internal-endpoint-secret}") String internalSecret) {
     this.webClient = webClientBuilder.build();
     this.baseUrl = baseUrl;
     this.internalSecret = internalSecret;

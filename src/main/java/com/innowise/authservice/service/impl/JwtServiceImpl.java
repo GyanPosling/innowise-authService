@@ -4,6 +4,7 @@ import com.innowise.authservice.config.security.AuthUserDetails;
 import com.innowise.authservice.mapper.TokenResponseMapper;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.TokenType;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -39,14 +40,14 @@ public class JwtServiceImpl implements JwtService {
   @Override
   public TokenResponse generateTokens(UserDetails userDetails) {
     return buildTokenResponse(
-        generateToken(userDetails, tokenExpiration),
-        generateToken(userDetails, refreshTokenExpiration));
+        generateToken(userDetails, tokenExpiration, TokenType.ACCESS),
+        generateToken(userDetails, refreshTokenExpiration, TokenType.REFRESH));
   }
 
   @Override
   public TokenResponse refreshTokens(String refreshToken, UserDetails userDetails) {
     return buildTokenResponse(
-        generateToken(userDetails, tokenExpiration),
+        generateToken(userDetails, tokenExpiration, TokenType.ACCESS),
         refreshToken);
   }
 
@@ -59,6 +60,15 @@ public class JwtServiceImpl implements JwtService {
     }
     if (expiration.before(new Date())) {
       throw new JwtException("Token is expired");
+    }
+    String tokenType = claims.get("tokenType", String.class);
+    if (tokenType == null || tokenType.isBlank()) {
+      throw new JwtException("Token type is missing");
+    }
+    try {
+      TokenType.valueOf(tokenType);
+    } catch (IllegalArgumentException ex) {
+      throw new JwtException("Token type is invalid");
     }
   }
 
@@ -77,13 +87,19 @@ public class JwtServiceImpl implements JwtService {
     return extractClaim(token, claims -> Role.valueOf(claims.get("role", String.class)));
   }
 
-  private String generateToken(UserDetails userDetails, long expirationMs) {
+  @Override
+  public TokenType extractTokenType(String token) {
+    return extractClaim(token, claims -> TokenType.valueOf(claims.get("tokenType", String.class)));
+  }
+
+  private String generateToken(UserDetails userDetails, long expirationMs, TokenType tokenType) {
     Map<String, Object> claims = new HashMap<>();
     if (userDetails instanceof AuthUserDetails authUserDetails) {
       claims.put("userId", authUserDetails.getUserId());
       claims.put("role", authUserDetails.getRole().name());
       claims.put("email", authUserDetails.getEmail());
     }
+    claims.put("tokenType", tokenType.name());
 
     long now = System.currentTimeMillis();
     Date expire = new Date(now + expirationMs);
