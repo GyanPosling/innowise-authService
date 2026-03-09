@@ -25,46 +25,46 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 @ExtendWith(MockitoExtension.class)
 class AdminControllerTest {
 
-  private MockMvc mockMvc;
+    private MockMvc mockMvc;
 
-  @Mock
-  private AdminService adminService;
+    @Mock
+    private AdminService adminService;
 
-  @BeforeEach
-  void setUp() {
-    mockMvc = MockMvcBuilders.standaloneSetup(new AdminController(adminService))
-        .setControllerAdvice(new GlobalExceptionHandler())
-        .build();
-  }
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(new AdminController(adminService))
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
+    }
 
-  @Test
-  void promoteToAdmin_returnsResponse() throws Exception {
-    UUID userId = UUID.randomUUID();
-    PromoteUserResponse response = PromoteUserResponse.builder()
-        .userId(userId)
-        .username("user")
-        .email("user@example.com")
-        .role(Role.ADMIN)
-        .build();
-    when(adminService.promoteToAdmin(userId)).thenReturn(response);
+    @Test
+    void promoteToAdmin_returnsResponse() throws Exception {
+        UUID userId = UUID.randomUUID();
+        PromoteUserResponse response = PromoteUserResponse.builder()
+                .userId(userId)
+                .username("user")
+                .email("user@example.com")
+                .role(Role.ADMIN)
+                .build();
+        when(adminService.promoteToAdmin(userId)).thenReturn(response);
 
-    mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId", is(userId.toString())))
-        .andExpect(jsonPath("$.username", is("user")))
-        .andExpect(jsonPath("$.email", is("user@example.com")))
-        .andExpect(jsonPath("$.role", is("ADMIN")));
+        mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.userId", is(userId.toString())))
+                .andExpect(jsonPath("$.username", is("user")))
+                .andExpect(jsonPath("$.email", is("user@example.com")))
+                .andExpect(jsonPath("$.role", is("ADMIN")));
 
-    verify(adminService).promoteToAdmin(userId);
-  }
+        verify(adminService).promoteToAdmin(userId);
+    }
 
-  @Test
-  void promoteToAdmin_whenUserMissing_returnsNotFound() throws Exception {
-    UUID userId = UUID.randomUUID();
-    doThrow(new AuthUserNotFoundException("id: " + userId))
-        .when(adminService).promoteToAdmin(userId);
+    @Test
+    void promoteToAdmin_whenUserMissing_returnsNotFound() throws Exception {
+        UUID userId = UUID.randomUUID();
+        doThrow(new AuthUserNotFoundException("id: " + userId))
+                .when(adminService).promoteToAdmin(userId);
 
-    mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
-        .andExpect(status().isNotFound());
-  }
+        mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
+                .andExpect(status().isNotFound());
+    }
 }

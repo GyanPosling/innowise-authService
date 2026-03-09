@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PromoteUserResponse {
 
-  private UUID userId;
-  private String username;
-  private String email;
-  private Role role;
+    private UUID userId;
+    private String username;
+    private String email;
+    private Role role;
 }

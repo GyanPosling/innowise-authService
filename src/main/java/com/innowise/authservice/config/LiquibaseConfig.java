@@ -10,24 +10,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class LiquibaseConfig {
 
-  @Bean
-  public SpringLiquibase liquibase(DataSource dataSource,
-      @Value("${spring.liquibase.change-log}") String changeLog,
-      @Value("${spring.liquibase.enabled:true}") boolean enabled) {
-    SpringLiquibase liquibase = new SpringLiquibase();
-    liquibase.setDataSource(dataSource);
-    liquibase.setChangeLog(changeLog);
-    liquibase.setShouldRun(enabled);
-    return liquibase;
-  }
+    @Bean
+    public SpringLiquibase liquibase(DataSource dataSource,
+            @Value("${spring.liquibase.change-log}") String changeLog,
+            @Value("${spring.liquibase.enabled:true}") boolean enabled) {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource);
+        liquibase.setChangeLog(changeLog);
+        liquibase.setShouldRun(enabled);
+        return liquibase;
+    }
 
-  @Bean
-  public static BeanFactoryPostProcessor liquibaseDependencyPostProcessor() {
-    return beanFactory -> {
-      if (beanFactory.containsBeanDefinition("entityManagerFactory")
-          && beanFactory.containsBeanDefinition("liquibase")) {
-        beanFactory.getBeanDefinition("entityManagerFactory").setDependsOn("liquibase");
-      }
-    };
-  }
+    @Bean
+    public static BeanFactoryPostProcessor liquibaseDependencyPostProcessor() {
+        return beanFactory -> {
+            if (beanFactory.containsBeanDefinition("entityManagerFactory")
+                    && beanFactory.containsBeanDefinition("liquibase")) {
+                beanFactory.getBeanDefinition("entityManagerFactory").setDependsOn("liquibase");
+            }
+        };
+    }
 }

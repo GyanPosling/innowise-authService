@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/admin")
 public class AdminController implements AdminControllerApi {
 
-  private final AdminService adminService;
+    private final AdminService adminService;
 
-  @PostMapping("/users/{id}/promote")
-  @Override
-  public ResponseEntity<PromoteUserResponse> promoteToAdmin(@PathVariable UUID id) {
-    PromoteUserResponse response = adminService.promoteToAdmin(id);
-    return ResponseEntity.ok(response);
-  }
+    @PostMapping("/users/{id}/promote")
+    @Override
+    public ResponseEntity<PromoteUserResponse> promoteToAdmin(@PathVariable UUID id) {
+        PromoteUserResponse response = adminService.promoteToAdmin(id);
+        return ResponseEntity.ok(response);
+    }
 }

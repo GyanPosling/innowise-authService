@@ -16,27 +16,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterRequest {
 
-  @NotBlank(message = "Username is required")
-  @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
-  private String username;
+    @NotBlank(message = "Username is required")
+    @Size(min = 2, max = 50, message = "Username must be between 2 and 50 characters")
+    private String username;
 
-  @NotBlank(message = "Email is required")
-  @Email(message = "Email must be valid")
-  @Size(max = 100, message = "Email must not exceed 100 characters")
-  private String email;
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email must be valid")
+    @Size(max = 100, message = "Email must not exceed 100 characters")
+    private String email;
 
-  @NotBlank(message = "Password is required")
-  @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
-  private String password;
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 100, message = "Password must be between 8 and 100 characters")
+    private String password;
 
-  @NotBlank(message = "Name is required")
-  @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
-  private String name;
+    @NotBlank(message = "Name is required")
+    @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
+    private String name;
 
-  @NotBlank(message = "Surname is required")
-  @Size(min = 2, max = 50, message = "Surname must be between 2 and 50 characters")
-  private String surname;
+    @NotBlank(message = "Surname is required")
+    @Size(min = 2, max = 50, message = "Surname must be between 2 and 50 characters")
+    private String surname;
 
-  @Past(message = "Birth date must be in the past")
-  private LocalDate birthDate;
+    @Past(message = "Birth date must be in the past")
+    private LocalDate birthDate;
 }

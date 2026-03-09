@@ -13,64 +13,64 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserMapper {
 
-  public AuthUser toEntity(RegisterRequest request, String encodedPassword) {
-    if (request == null) {
-      return null;
+    public AuthUser toEntity(RegisterRequest request, String encodedPassword) {
+        if (request == null) {
+            return null;
+        }
+        AuthUser user = new AuthUser();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(encodedPassword);
+        user.setRole(Role.USER);
+        return user;
     }
-    AuthUser user = new AuthUser();
-    user.setUsername(request.getUsername());
-    user.setEmail(request.getEmail());
-    user.setPassword(encodedPassword);
-    user.setRole(Role.USER);
-    return user;
-  }
 
-  public CreateUserProfileRequest toCreateUserProfileRequest(RegisterRequest request) {
-    if (request == null) {
-      return null;
+    public CreateUserProfileRequest toCreateUserProfileRequest(RegisterRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return CreateUserProfileRequest.builder()
+                .name(request.getName())
+                .surname(request.getSurname())
+                .birthDate(request.getBirthDate())
+                .email(request.getEmail())
+                .build();
     }
-    return CreateUserProfileRequest.builder()
-        .name(request.getName())
-        .surname(request.getSurname())
-        .birthDate(request.getBirthDate())
-        .email(request.getEmail())
-        .build();
-  }
 
-  public RegisterResponse toRegisterResponse(AuthUser user) {
-    if (user == null) {
-      return null;
+    public RegisterResponse toRegisterResponse(AuthUser user) {
+        if (user == null) {
+            return null;
+        }
+        return RegisterResponse.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
-    return RegisterResponse.builder()
-        .userId(user.getId())
-        .username(user.getUsername())
-        .email(user.getEmail())
-        .role(user.getRole())
-        .build();
-  }
 
-  public ValidateTokenResponse toValidateTokenResponse(AuthUserDetails userDetails) {
-    if (userDetails == null) {
-      return null;
+    public ValidateTokenResponse toValidateTokenResponse(AuthUserDetails userDetails) {
+        if (userDetails == null) {
+            return null;
+        }
+        return ValidateTokenResponse.builder()
+                .valid(true)
+                .userId(userDetails.getUserId())
+                .username(userDetails.getUsername())
+                .email(userDetails.getEmail())
+                .role(userDetails.getRole())
+                .build();
     }
-    return ValidateTokenResponse.builder()
-        .valid(true)
-        .userId(userDetails.getUserId())
-        .username(userDetails.getUsername())
-        .email(userDetails.getEmail())
-        .role(userDetails.getRole())
-        .build();
-  }
 
-  public PromoteUserResponse toPromoteUserResponse(AuthUser user) {
-    if (user == null) {
-      return null;
+    public PromoteUserResponse toPromoteUserResponse(AuthUser user) {
+        if (user == null) {
+            return null;
+        }
+        return PromoteUserResponse.builder()
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
-    return PromoteUserResponse.builder()
-        .userId(user.getId())
-        .username(user.getUsername())
-        .email(user.getEmail())
-        .role(user.getRole())
-        .build();
-  }
 }
