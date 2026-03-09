@@ -5,7 +5,7 @@ import java.io.Serial;
 public class RefreshTokenRejectedException extends RuntimeException {
 
   @Serial
-  private static final long serialVersionUID = 5955428268128301892L;
+  private static final long serialVersionUID = 832901783975184421L;
 
   public RefreshTokenRejectedException() {
     super("Refresh token is invalid");

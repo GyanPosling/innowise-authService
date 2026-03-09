@@ -14,6 +14,7 @@ import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.repository.AuthUserRepository;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,24 +34,26 @@ class AdminServiceImplTest {
 
   @Test
   void promoteToAdmin_whenUserNotFound_throwsException() {
-    when(authUserRepository.findById(1L)).thenReturn(Optional.empty());
+    UUID userId = UUID.randomUUID();
+    when(authUserRepository.findById(userId)).thenReturn(Optional.empty());
 
-    assertThrows(AuthUserNotFoundException.class, () -> adminService.promoteToAdmin(1L));
+    assertThrows(AuthUserNotFoundException.class, () -> adminService.promoteToAdmin(userId));
   }
 
   @Test
   void promoteToAdmin_whenAlreadyAdmin_doesNotSave() {
+    UUID userId = UUID.randomUUID();
     AuthUser user = new AuthUser();
-    user.setId(2L);
+    user.setId(userId);
     user.setRole(Role.ADMIN);
     PromoteUserResponse expected = PromoteUserResponse.builder()
-        .userId(2L)
+        .userId(userId)
         .role(Role.ADMIN)
         .build();
-    when(authUserRepository.findById(2L)).thenReturn(Optional.of(user));
+    when(authUserRepository.findById(userId)).thenReturn(Optional.of(user));
     when(authUserMapper.toPromoteUserResponse(user)).thenReturn(expected);
 
-    PromoteUserResponse response = adminService.promoteToAdmin(2L);
+    PromoteUserResponse response = adminService.promoteToAdmin(userId);
 
     assertSame(expected, response);
     verify(authUserRepository, never()).save(user);
@@ -58,21 +61,22 @@ class AdminServiceImplTest {
 
   @Test
   void promoteToAdmin_whenUserRoleNotAdmin_updatesRoleAndSaves() {
+    UUID userId = UUID.randomUUID();
     AuthUser user = new AuthUser();
-    user.setId(3L);
+    user.setId(userId);
     user.setRole(Role.USER);
     AuthUser savedUser = new AuthUser();
-    savedUser.setId(3L);
+    savedUser.setId(userId);
     savedUser.setRole(Role.ADMIN);
     PromoteUserResponse expected = PromoteUserResponse.builder()
-        .userId(3L)
+        .userId(userId)
         .role(Role.ADMIN)
         .build();
-    when(authUserRepository.findById(3L)).thenReturn(Optional.of(user));
+    when(authUserRepository.findById(userId)).thenReturn(Optional.of(user));
     when(authUserRepository.save(user)).thenReturn(savedUser);
     when(authUserMapper.toPromoteUserResponse(savedUser)).thenReturn(expected);
 
-    PromoteUserResponse response = adminService.promoteToAdmin(3L);
+    PromoteUserResponse response = adminService.promoteToAdmin(userId);
 
     assertEquals(Role.ADMIN, user.getRole());
     verify(authUserRepository).save(user);

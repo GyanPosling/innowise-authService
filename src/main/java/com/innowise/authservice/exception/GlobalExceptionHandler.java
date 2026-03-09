@@ -59,6 +59,12 @@ public class GlobalExceptionHandler {
         .body(ErrorResponse.builder().message(ex.getMessage()).build());
   }
 
+  @ExceptionHandler(UserServiceIntegrationException.class)
+  public ResponseEntity<ErrorResponse> handleIntegrationFailure(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+        .body(ErrorResponse.builder().message(ex.getMessage()).build());
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

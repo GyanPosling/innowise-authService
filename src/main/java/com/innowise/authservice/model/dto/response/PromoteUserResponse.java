@@ -1,6 +1,7 @@
 package com.innowise.authservice.model.dto.response;
 
 import com.innowise.authservice.model.entity.type.Role;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PromoteUserResponse {
 
-  private Long userId;
+  private UUID userId;
   private String username;
   private String email;
   private Role role;

@@ -5,7 +5,7 @@ import java.io.Serial;
 public class LoginFailedException extends RuntimeException {
 
   @Serial
-  private static final long serialVersionUID = -3921244369728493474L;
+  private static final long serialVersionUID = 3884422136618803703L;
 
   public LoginFailedException() {
     super("Login failed");

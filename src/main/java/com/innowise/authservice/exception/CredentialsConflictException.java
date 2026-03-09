@@ -5,21 +5,17 @@ import java.io.Serial;
 public class CredentialsConflictException extends RuntimeException {
 
   @Serial
-  private static final long serialVersionUID = 7241488733902557597L;
+  private static final long serialVersionUID = -3978034227206313862L;
 
   public CredentialsConflictException() {
     super("Credentials already exist");
   }
 
-  public CredentialsConflictException(String message) {
-    super(message);
+  public CredentialsConflictException(String details) {
+    super("Credentials already exist for " + details);
   }
 
   public CredentialsConflictException(String message, Throwable cause) {
     super(message, cause);
-  }
-
-  public CredentialsConflictException(String field, String value) {
-    super("Credentials already exist for " + field + ": " + value);
   }
 }

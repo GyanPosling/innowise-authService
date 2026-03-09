@@ -16,6 +16,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -80,8 +81,11 @@ public class JwtServiceImpl implements JwtService {
   }
 
   @Override
-  public Long extractUserId(String token) {
-    return extractClaim(token, claims -> claims.get("userId", Long.class));
+  public UUID extractUserId(String token) {
+    return extractClaim(token, claims -> {
+      String userId = claims.get("userId", String.class);
+      return userId == null ? null : UUID.fromString(userId);
+    });
   }
 
   @Override
@@ -97,7 +101,7 @@ public class JwtServiceImpl implements JwtService {
   private String generateToken(UserDetails userDetails, long expirationMs, TokenType tokenType) {
     Map<String, Object> claims = new HashMap<>();
     if (userDetails instanceof AuthUserDetails authUserDetails) {
-      claims.put("userId", authUserDetails.getUserId());
+      claims.put("userId", authUserDetails.getUserId().toString());
       claims.put("role", authUserDetails.getRole().name());
       claims.put("email", authUserDetails.getEmail());
     }

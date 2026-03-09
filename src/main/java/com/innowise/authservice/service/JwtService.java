@@ -3,6 +3,7 @@ package com.innowise.authservice.service;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.model.entity.type.TokenType;
+import java.util.UUID;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public interface JwtService {
@@ -14,7 +15,7 @@ public interface JwtService {
   void validateToken(String token);
 
   String extractUsername(String token);
-  Long extractUserId(String token);
+  UUID extractUserId(String token);
 
   Role extractRole(String token);
 

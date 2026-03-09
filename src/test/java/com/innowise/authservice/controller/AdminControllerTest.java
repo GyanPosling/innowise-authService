@@ -13,6 +13,7 @@ import com.innowise.authservice.exception.GlobalExceptionHandler;
 import com.innowise.authservice.model.dto.response.PromoteUserResponse;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.service.AdminService;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,30 +39,32 @@ class AdminControllerTest {
 
   @Test
   void promoteToAdmin_returnsResponse() throws Exception {
+    UUID userId = UUID.randomUUID();
     PromoteUserResponse response = PromoteUserResponse.builder()
-        .userId(5L)
+        .userId(userId)
         .username("user")
         .email("user@example.com")
         .role(Role.ADMIN)
         .build();
-    when(adminService.promoteToAdmin(5L)).thenReturn(response);
+    when(adminService.promoteToAdmin(userId)).thenReturn(response);
 
-    mockMvc.perform(post("/api/v1/admin/users/5/promote"))
+    mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId", is(5)))
+        .andExpect(jsonPath("$.userId", is(userId.toString())))
         .andExpect(jsonPath("$.username", is("user")))
         .andExpect(jsonPath("$.email", is("user@example.com")))
         .andExpect(jsonPath("$.role", is("ADMIN")));
 
-    verify(adminService).promoteToAdmin(5L);
+    verify(adminService).promoteToAdmin(userId);
   }
 
   @Test
   void promoteToAdmin_whenUserMissing_returnsNotFound() throws Exception {
-    doThrow(new AuthUserNotFoundException("id", "5"))
-        .when(adminService).promoteToAdmin(5L);
+    UUID userId = UUID.randomUUID();
+    doThrow(new AuthUserNotFoundException("id: " + userId))
+        .when(adminService).promoteToAdmin(userId);
 
-    mockMvc.perform(post("/api/v1/admin/users/5/promote"))
+    mockMvc.perform(post("/api/v1/admin/users/" + userId + "/promote"))
         .andExpect(status().isNotFound());
   }
 }

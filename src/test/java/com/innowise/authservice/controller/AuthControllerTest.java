@@ -20,6 +20,7 @@ import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.service.AuthService;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,15 +54,18 @@ class AuthControllerTest {
 
   @Test
   void register_returnsCreated() throws Exception {
+    UUID userId = UUID.randomUUID();
     RegisterRequest request = RegisterRequest.builder()
         .username("user")
+        .name("Name")
+        .surname("Surname")
         .email("user@example.com")
         .password("password123")
         .name("First")
         .surname("Last")
         .build();
     RegisterResponse response = RegisterResponse.builder()
-        .userId(1L)
+        .userId(userId)
         .username("user")
         .email("user@example.com")
         .role(Role.USER)
@@ -72,7 +76,7 @@ class AuthControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.userId", is(1)))
+        .andExpect(jsonPath("$.userId", is(userId.toString())))
         .andExpect(jsonPath("$.username", is("user")))
         .andExpect(jsonPath("$.email", is("user@example.com")))
         .andExpect(jsonPath("$.role", is("USER")));
@@ -153,12 +157,13 @@ class AuthControllerTest {
 
   @Test
   void validate_returnsUserInfo() throws Exception {
+    UUID userId = UUID.randomUUID();
     ValidateTokenRequest request = ValidateTokenRequest.builder()
         .token("access")
         .build();
     ValidateTokenResponse response = ValidateTokenResponse.builder()
         .valid(true)
-        .userId(1L)
+        .userId(userId)
         .username("user")
         .email("user@example.com")
         .role(Role.USER)
@@ -170,7 +175,7 @@ class AuthControllerTest {
             .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.valid", is(true)))
-        .andExpect(jsonPath("$.userId", is(1)))
+        .andExpect(jsonPath("$.userId", is(userId.toString())))
         .andExpect(jsonPath("$.username", is("user")))
         .andExpect(jsonPath("$.email", is("user@example.com")))
         .andExpect(jsonPath("$.role", is("USER")));

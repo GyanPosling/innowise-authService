@@ -5,7 +5,7 @@ import java.io.Serial;
 public class AccessTokenRejectedException extends RuntimeException {
 
   @Serial
-  private static final long serialVersionUID = -6801636966501238160L;
+  private static final long serialVersionUID = -7236934854028406515L;
 
   public AccessTokenRejectedException() {
     super("Access token is invalid");

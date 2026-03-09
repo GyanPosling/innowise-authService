@@ -16,6 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -35,8 +36,9 @@ class JwtServiceImplTest {
 
   @Test
   void generateTokens_includesUserClaims() {
+    UUID userId = UUID.randomUUID();
     AuthUser user = new AuthUser();
-    user.setId(5L);
+    user.setId(userId);
     user.setUsername("user");
     user.setEmail("user@example.com");
     user.setRole(Role.USER);
@@ -48,14 +50,15 @@ class JwtServiceImplTest {
     assertNotNull(response.getRefreshToken());
     assertEquals("Bearer", response.getTokenType());
 
-    assertEquals(5L, jwtService.extractUserId(response.getAccessToken()));
+    assertEquals(userId, jwtService.extractUserId(response.getAccessToken()));
     assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
   }
 
   @Test
   void validateToken_allowsValidToken() {
+    UUID userId = UUID.randomUUID();
     AuthUser user = new AuthUser();
-    user.setId(5L);
+    user.setId(userId);
     user.setUsername("user");
     user.setEmail("user@example.com");
     user.setRole(Role.USER);

@@ -1,5 +1,6 @@
 package com.innowise.authservice.service.impl;
 
+import com.innowise.authservice.client.UserServiceClient;
 import com.innowise.authservice.config.security.AuthUserDetails;
 import com.innowise.authservice.exception.AccessTokenRejectedException;
 import com.innowise.authservice.exception.AuthUserNotFoundException;
@@ -7,9 +8,9 @@ import com.innowise.authservice.exception.CredentialsConflictException;
 import com.innowise.authservice.exception.LoginFailedException;
 import com.innowise.authservice.exception.RefreshTokenRejectedException;
 import com.innowise.authservice.exception.TokenValidationFailedException;
+import com.innowise.authservice.exception.UserServiceIntegrationException;
 import com.innowise.authservice.mapper.AuthUserMapper;
-import com.innowise.authservice.client.UserServiceClient;
-import com.innowise.authservice.model.dto.request.InternalUserCreateRequest;
+import com.innowise.authservice.model.dto.request.CreateUserProfileRequest;
 import com.innowise.authservice.model.dto.request.LoginRequest;
 import com.innowise.authservice.model.dto.request.RefreshTokenRequest;
 import com.innowise.authservice.model.dto.request.RegisterRequest;
@@ -24,15 +25,22 @@ import com.innowise.authservice.service.AuthService;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.JwtException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
@@ -46,54 +54,46 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public RegisterResponse register(RegisterRequest request) {
-    Integer userId = userServiceClient.createInternalUser(
-        InternalUserCreateRequest.builder()
-            .name(request.getName())
-            .surname(request.getSurname())
-            .birthDate(request.getBirthDate())
-            .email(request.getEmail())
-            .build());
-    if (userId == null) {
-      throw new IllegalStateException("User service did not return user id");
-    }
-
     if (authUserRepository.existsByUsername(request.getUsername())) {
-      userServiceClient.rollbackUser(userId);
-      throw new CredentialsConflictException("username", request.getUsername());
+      throw new CredentialsConflictException("username: " + request.getUsername());
     }
     if (authUserRepository.existsByEmail(request.getEmail())) {
-      userServiceClient.rollbackUser(userId);
-      throw new CredentialsConflictException("email", request.getEmail());
+      throw new CredentialsConflictException("email: " + request.getEmail());
     }
 
+    UUID userId = UUID.randomUUID();
     String encodedPassword = passwordEncoder.encode(request.getPassword());
     AuthUser user = authUserMapper.toEntity(request, encodedPassword);
-    AuthUser savedUser = authUserRepository.save(user);
+    user.setId(userId);
+
+    AuthUser savedUser;
     try {
-      userServiceClient.linkAuthUser(userId, savedUser.getId());
-    } catch (RuntimeException ex) {
-      authUserRepository.deleteById(savedUser.getId());
-      userServiceClient.rollbackUser(userId);
-      throw ex;
+      savedUser = authUserRepository.save(user);
+    } catch (DataIntegrityViolationException ex) {
+      throw resolveCredentialsConflict(request, ex);
     }
 
-    UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getUsername());
-    TokenResponse tokens = jwtService.generateTokens(userDetails);
-    return RegisterResponse.builder()
-        .userId(savedUser.getId())
-        .username(savedUser.getUsername())
-        .email(savedUser.getEmail())
-        .role(savedUser.getRole())
-        .accessToken(tokens.getAccessToken())
-        .refreshToken(tokens.getRefreshToken())
-        .tokenType(tokens.getTokenType())
-        .build();
+    CreateUserProfileRequest createUserProfileRequest =
+        authUserMapper.toCreateUserProfileRequest(request);
+    createUserProfileRequest.setId(userId);
+
+    try {
+      userServiceClient.createUserProfile(createUserProfileRequest);
+    } catch (HttpClientErrorException.Conflict ex) {
+      rollbackAuthUser(userId, ex);
+      throw new CredentialsConflictException("email: " + request.getEmail());
+    } catch (HttpClientErrorException | HttpServerErrorException | ResourceAccessException ex) {
+      rollbackAuthUser(userId, ex);
+      throw new UserServiceIntegrationException("Failed to create user profile", ex);
+    }
+
+    return authUserMapper.toRegisterResponse(savedUser);
   }
 
   @Override
   public TokenResponse createTokens(LoginRequest request) {
     if (authUserRepository.findByUsername(request.getUsername()).isEmpty()) {
-      throw new AuthUserNotFoundException("username", request.getUsername());
+      throw new AuthUserNotFoundException("username: " + request.getUsername());
     }
 
     try {
@@ -144,6 +144,33 @@ public class AuthServiceImpl implements AuthService {
       throw ex;
     } catch (Exception ex) {
       throw new TokenValidationFailedException("Failed to validate token");
+    }
+  }
+
+  private RuntimeException resolveCredentialsConflict(RegisterRequest request, Exception ex) {
+    if (authUserRepository.existsByUsername(request.getUsername())) {
+      return new CredentialsConflictException("username: " + request.getUsername());
+    }
+    if (authUserRepository.existsByEmail(request.getEmail())) {
+      return new CredentialsConflictException("email: " + request.getEmail());
+    }
+    return new UserServiceIntegrationException("Failed to save user credentials", ex);
+  }
+
+  private void rollbackAuthUser(UUID userId, Exception originalException) {
+    try {
+      authUserRepository.deleteById(userId);
+    } catch (Exception rollbackException) {
+      log.error(
+          "Failed to rollback auth user {} after registration failure: {}",
+          userId,
+          rollbackException.getMessage(),
+          rollbackException);
+      log.error(
+          "Original registration failure for {}: {}",
+          userId,
+          originalException.getMessage(),
+          originalException);
     }
   }
 }
