@@ -19,8 +19,6 @@ jwt:
   refresh-expiration: 360000000
 userservice:
   base-url: ${USERSERVICE_BASE_URL:http://userservice:8080}
-authservice:
-  internal-endpoint-secret: ${AUTHSERVICE_INTERNAL_ENDPOINT_SECRET}
 admin:
   username: ${ADMIN_USERNAME:}
   email: ${ADMIN_EMAIL:}

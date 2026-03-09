@@ -30,7 +30,6 @@ import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.JwtException;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -145,14 +144,15 @@ class AuthServiceImplTest {
   }
 
   @Test
-  void createTokens_whenUserNotFound_throwsNotFound() {
+  void createTokens_whenUserNotFound_throwsLoginFailed() {
     LoginRequest request = LoginRequest.builder()
         .username("user")
         .password("password123")
         .build();
-    when(authUserRepository.findByUsername("user")).thenReturn(Optional.empty());
+    when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        .thenThrow(new AuthUserNotFoundException("username: user"));
 
-    assertThrows(AuthUserNotFoundException.class, () -> authService.createTokens(request));
+    assertThrows(LoginFailedException.class, () -> authService.createTokens(request));
   }
 
   @Test
@@ -161,7 +161,6 @@ class AuthServiceImplTest {
         .username("user")
         .password("password123")
         .build();
-    when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenThrow(new BadCredentialsException("bad credentials"));
 
@@ -177,7 +176,6 @@ class AuthServiceImplTest {
     UserDetails userDetails = new User("user", "pass", new java.util.ArrayList<>());
     TokenResponse expected = TokenResponse.builder().accessToken("access").refreshToken("refresh")
         .tokenType("Bearer").build();
-    when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
     when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
         .thenReturn(authentication);
     when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);

@@ -92,16 +92,12 @@ public class AuthServiceImpl implements AuthService {
 
   @Override
   public TokenResponse createTokens(LoginRequest request) {
-    if (authUserRepository.findByUsername(request.getUsername()).isEmpty()) {
-      throw new AuthUserNotFoundException("username: " + request.getUsername());
-    }
-
     try {
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
       UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getUsername());
       return jwtService.generateTokens(userDetails);
-    } catch (BadCredentialsException ex) {
+    } catch (BadCredentialsException | AuthUserNotFoundException ex) {
       throw new LoginFailedException("Incorrect username or password");
     }
   }
