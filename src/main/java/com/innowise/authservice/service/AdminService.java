@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public interface AdminService {
 
-    PromoteUserResponse promoteToAdmin(UUID userId);
+  PromoteUserResponse promoteToAdmin(UUID userId);
 }

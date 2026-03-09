@@ -12,29 +12,29 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class UserServiceClient {
 
-    private static final String INTERNAL_SECRET_HEADER = "X-INTERNAL-SECRET";
+  private static final String INTERNAL_SECRET_HEADER = "X-INTERNAL-SECRET";
 
-    private final RestClient restClient;
+  private final RestClient restClient;
 
-    @Value("${services.userservice-url}")
-    private String userServiceUrl;
+  @Value("${services.userservice-url}")
+  private String userServiceUrl;
 
-    @Value("${services.internal-secret}")
-    private String internalSecret;
+  @Value("${services.internal-secret}")
+  private String internalSecret;
 
-    public void createUserProfile(CreateUserProfileRequest request) {
-        restClient.post()
-                .uri(userServiceUrl + "/api/users/internal")
-                .headers(headers -> headers.addAll(createHeaders()))
-                .body(request)
-                .retrieve()
-                .toBodilessEntity();
-    }
+  public void createUserProfile(CreateUserProfileRequest request) {
+    restClient.post()
+        .uri(userServiceUrl + "/api/users/internal")
+        .headers(headers -> headers.addAll(createHeaders()))
+        .body(request)
+        .retrieve()
+        .toBodilessEntity();
+  }
 
-    private HttpHeaders createHeaders() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set(INTERNAL_SECRET_HEADER, internalSecret);
-        return headers;
-    }
+  private HttpHeaders createHeaders() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set(INTERNAL_SECRET_HEADER, internalSecret);
+    return headers;
+  }
 }

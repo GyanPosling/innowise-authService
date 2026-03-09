@@ -53,17 +53,17 @@ public class GlobalExceptionHandler {
                 .body(ErrorResponse.builder().message(ex.getMessage()).build());
     }
 
-    @ExceptionHandler(TokenValidationFailedException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ErrorResponse.builder().message(ex.getMessage()).build());
-    }
+  @ExceptionHandler(TokenValidationFailedException.class)
+  public ResponseEntity<ErrorResponse> handleValidation(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ErrorResponse.builder().message(ex.getMessage()).build());
+  }
 
-    @ExceptionHandler(UserServiceIntegrationException.class)
-    public ResponseEntity<ErrorResponse> handleIntegrationFailure(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                .body(ErrorResponse.builder().message(ex.getMessage()).build());
-    }
+  @ExceptionHandler(UserServiceIntegrationException.class)
+  public ResponseEntity<ErrorResponse> handleIntegrationFailure(RuntimeException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+        .body(ErrorResponse.builder().message(ex.getMessage()).build());
+  }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {

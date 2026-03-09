@@ -52,35 +52,33 @@ class AuthControllerTest {
                 .build();
     }
 
-    @Test
-    void register_returnsCreated() throws Exception {
-        UUID userId = UUID.randomUUID();
-        RegisterRequest request = RegisterRequest.builder()
-                .username("user")
-                .name("Name")
-                .surname("Surname")
-                .email("user@example.com")
-                .password("password123")
-                .name("First")
-                .surname("Last")
-                .build();
-        RegisterResponse response = RegisterResponse.builder()
-                .userId(userId)
-                .username("user")
-                .email("user@example.com")
-                .role(Role.USER)
-                .build();
-        when(authService.register(any(RegisterRequest.class))).thenReturn(response);
+  @Test
+  void register_returnsCreated() throws Exception {
+    UUID userId = UUID.randomUUID();
+    RegisterRequest request = RegisterRequest.builder()
+        .username("user")
+        .name("Name")
+        .surname("Surname")
+        .email("user@example.com")
+        .password("password123")
+        .build();
+    RegisterResponse response = RegisterResponse.builder()
+        .userId(userId)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.USER)
+        .build();
+    when(authService.register(any(RegisterRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userId", is(userId.toString())))
-                .andExpect(jsonPath("$.username", is("user")))
-                .andExpect(jsonPath("$.email", is("user@example.com")))
-                .andExpect(jsonPath("$.role", is("USER")));
-    }
+    mockMvc.perform(post("/api/v1/auth/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.userId", is(userId.toString())))
+        .andExpect(jsonPath("$.username", is("user")))
+        .andExpect(jsonPath("$.email", is("user@example.com")))
+        .andExpect(jsonPath("$.role", is("USER")));
+  }
 
     @Test
     void register_withInvalidPayload_returnsBadRequest() throws Exception {
@@ -89,8 +87,8 @@ class AuthControllerTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest());
 
-        verify(authService, never()).register(any(RegisterRequest.class));
-    }
+    verify(authService, never()).register(any(RegisterRequest.class));
+  }
 
     @Test
     void login_returnsTokens() throws Exception {
@@ -155,31 +153,31 @@ class AuthControllerTest {
         verify(authService, never()).refreshTokens(any(RefreshTokenRequest.class));
     }
 
-    @Test
-    void validate_returnsUserInfo() throws Exception {
-        UUID userId = UUID.randomUUID();
-        ValidateTokenRequest request = ValidateTokenRequest.builder()
-                .token("access")
-                .build();
-        ValidateTokenResponse response = ValidateTokenResponse.builder()
-                .valid(true)
-                .userId(userId)
-                .username("user")
-                .email("user@example.com")
-                .role(Role.USER)
-                .build();
-        when(authService.validateToken(any(ValidateTokenRequest.class))).thenReturn(response);
+  @Test
+  void validate_returnsUserInfo() throws Exception {
+    UUID userId = UUID.randomUUID();
+    ValidateTokenRequest request = ValidateTokenRequest.builder()
+        .token("access")
+        .build();
+    ValidateTokenResponse response = ValidateTokenResponse.builder()
+        .valid(true)
+        .userId(userId)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.USER)
+        .build();
+    when(authService.validateToken(any(ValidateTokenRequest.class))).thenReturn(response);
 
-        mockMvc.perform(post("/api/v1/auth/validate")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.valid", is(true)))
-                .andExpect(jsonPath("$.userId", is(userId.toString())))
-                .andExpect(jsonPath("$.username", is("user")))
-                .andExpect(jsonPath("$.email", is("user@example.com")))
-                .andExpect(jsonPath("$.role", is("USER")));
-    }
+    mockMvc.perform(post("/api/v1/auth/validate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.valid", is(true)))
+        .andExpect(jsonPath("$.userId", is(userId.toString())))
+        .andExpect(jsonPath("$.username", is("user")))
+        .andExpect(jsonPath("$.email", is("user@example.com")))
+        .andExpect(jsonPath("$.role", is("USER")));
+  }
 
     @Test
     void validate_withInvalidPayload_returnsBadRequest() throws Exception {

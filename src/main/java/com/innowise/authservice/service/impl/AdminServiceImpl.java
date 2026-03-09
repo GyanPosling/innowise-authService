@@ -18,15 +18,15 @@ public class AdminServiceImpl implements AdminService {
     private final AuthUserRepository authUserRepository;
     private final AuthUserMapper authUserMapper;
 
-    @Override
-    public PromoteUserResponse promoteToAdmin(UUID userId) {
-        AuthUser user = authUserRepository.findById(userId)
-                .orElseThrow(() -> new AuthUserNotFoundException("id: " + userId));
-        if (user.getRole() == Role.ADMIN) {
-            return authUserMapper.toPromoteUserResponse(user);
-        }
-        user.setRole(Role.ADMIN);
-        AuthUser savedUser = authUserRepository.save(user);
-        return authUserMapper.toPromoteUserResponse(savedUser);
+  @Override
+  public PromoteUserResponse promoteToAdmin(UUID userId) {
+    AuthUser user = authUserRepository.findById(userId)
+        .orElseThrow(() -> new AuthUserNotFoundException("id: " + userId));
+    if (user.getRole() == Role.ADMIN) {
+      return authUserMapper.toPromoteUserResponse(user);
     }
+    user.setRole(Role.ADMIN);
+    AuthUser savedUser = authUserRepository.save(user);
+    return authUserMapper.toPromoteUserResponse(savedUser);
+  }
 }

@@ -10,7 +10,7 @@ import com.innowise.authservice.model.dto.response.ValidateTokenResponse;
 
 public interface AuthService {
 
-    RegisterResponse register(RegisterRequest request);
+  RegisterResponse register(RegisterRequest request);
 
     TokenResponse createTokens(LoginRequest request);
 

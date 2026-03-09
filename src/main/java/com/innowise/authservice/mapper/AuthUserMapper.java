@@ -13,29 +13,29 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserMapper {
 
-    public AuthUser toEntity(RegisterRequest request, String encodedPassword) {
-        if (request == null) {
-            return null;
-        }
-        AuthUser user = new AuthUser();
-        user.setUsername(request.getUsername());
-        user.setEmail(request.getEmail());
-        user.setPassword(encodedPassword);
-        user.setRole(Role.USER);
-        return user;
+  public AuthUser toEntity(RegisterRequest request, String encodedPassword) {
+    if (request == null) {
+      return null;
     }
+    AuthUser user = new AuthUser();
+    user.setUsername(request.getUsername());
+    user.setEmail(request.getEmail());
+    user.setPassword(encodedPassword);
+    user.setRole(Role.USER);
+    return user;
+  }
 
-    public CreateUserProfileRequest toCreateUserProfileRequest(RegisterRequest request) {
-        if (request == null) {
-            return null;
-        }
-        return CreateUserProfileRequest.builder()
-                .name(request.getName())
-                .surname(request.getSurname())
-                .birthDate(request.getBirthDate())
-                .email(request.getEmail())
-                .build();
+  public CreateUserProfileRequest toCreateUserProfileRequest(RegisterRequest request) {
+    if (request == null) {
+      return null;
     }
+    return CreateUserProfileRequest.builder()
+        .name(request.getName())
+        .surname(request.getSurname())
+        .birthDate(request.getBirthDate())
+        .email(request.getEmail())
+        .build();
+  }
 
     public RegisterResponse toRegisterResponse(AuthUser user) {
         if (user == null) {

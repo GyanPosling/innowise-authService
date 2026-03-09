@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateUserProfileRequest {
 
-    private UUID id;
-    private String name;
-    private String surname;
-    private LocalDate birthDate;
-    private String email;
+  private UUID id;
+  private String name;
+  private String surname;
+  private LocalDate birthDate;
+  private String email;
 }

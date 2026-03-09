@@ -13,11 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterResponse {
 
-    private UUID userId;
-    private String username;
-    private String email;
-    private Role role;
-    private String accessToken;
-    private String refreshToken;
-    private String tokenType;
+  private UUID userId;
+  private String username;
+  private String email;
+  private Role role;
 }

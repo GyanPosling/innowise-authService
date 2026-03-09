@@ -13,9 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ValidateTokenResponse {
 
-    private boolean valid;
-    private UUID userId;
-    private String username;
-    private String email;
-    private Role role;
+  private boolean valid;
+  private UUID userId;
+  private String username;
+  private String email;
+  private Role role;
 }

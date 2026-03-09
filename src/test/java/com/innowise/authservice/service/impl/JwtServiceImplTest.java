@@ -34,15 +34,15 @@ class JwtServiceImplTest {
         ReflectionTestUtils.setField(jwtService, "refreshTokenExpiration", 120000L);
     }
 
-    @Test
-    void generateTokens_includesUserClaims() {
-        UUID userId = UUID.randomUUID();
-        AuthUser user = new AuthUser();
-        user.setId(userId);
-        user.setUsername("user");
-        user.setEmail("user@example.com");
-        user.setRole(Role.USER);
-        AuthUserDetails userDetails = new AuthUserDetails(user);
+  @Test
+  void generateTokens_includesUserClaims() {
+    UUID userId = UUID.randomUUID();
+    AuthUser user = new AuthUser();
+    user.setId(userId);
+    user.setUsername("user");
+    user.setEmail("user@example.com");
+    user.setRole(Role.USER);
+    AuthUserDetails userDetails = new AuthUserDetails(user);
 
         TokenResponse response = jwtService.generateTokens(userDetails);
 
@@ -50,20 +50,20 @@ class JwtServiceImplTest {
         assertNotNull(response.getRefreshToken());
         assertEquals("Bearer", response.getTokenType());
 
-        assertEquals(userId, jwtService.extractUserId(response.getAccessToken()));
-        assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
-    }
+    assertEquals(userId, jwtService.extractUserId(response.getAccessToken()));
+    assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
+  }
 
-    @Test
-    void validateToken_allowsValidToken() {
-        UUID userId = UUID.randomUUID();
-        AuthUser user = new AuthUser();
-        user.setId(userId);
-        user.setUsername("user");
-        user.setEmail("user@example.com");
-        user.setRole(Role.USER);
-        AuthUserDetails userDetails = new AuthUserDetails(user);
-        TokenResponse response = jwtService.generateTokens(userDetails);
+  @Test
+  void validateToken_allowsValidToken() {
+    UUID userId = UUID.randomUUID();
+    AuthUser user = new AuthUser();
+    user.setId(userId);
+    user.setUsername("user");
+    user.setEmail("user@example.com");
+    user.setRole(Role.USER);
+    AuthUserDetails userDetails = new AuthUserDetails(user);
+    TokenResponse response = jwtService.generateTokens(userDetails);
 
         assertDoesNotThrow(() -> jwtService.validateToken(response.getAccessToken()));
     }

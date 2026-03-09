@@ -25,8 +25,8 @@ import org.hibernate.annotations.ColumnDefault;
 @NoArgsConstructor
 public class AuthUser {
 
-    @Id
-    private UUID id;
+  @Id
+  private UUID id;
 
     @Column(name = "username", unique = true, nullable = false, length = 255)
     private String username;

@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -82,10 +82,7 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public UUID extractUserId(String token) {
-        return extractClaim(token, claims -> {
-            String userId = claims.get("userId", String.class);
-            return userId == null ? null : UUID.fromString(userId);
-        });
+        return extractClaim(token, claims -> claims.get("userId", UUID.class));
     }
 
     @Override
@@ -101,9 +98,8 @@ public class JwtServiceImpl implements JwtService {
     private String generateToken(UserDetails userDetails, long expirationMs, TokenType tokenType) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof AuthUserDetails authUserDetails) {
-            claims.put("userId", authUserDetails.getUserId().toString());
+            claims.put("userId", authUserDetails.getUserId());
             claims.put("role", authUserDetails.getRole().name());
-            claims.put("email", authUserDetails.getEmail());
         }
         claims.put(TOKEN_TYPE_CLAIM, tokenType.name());
 

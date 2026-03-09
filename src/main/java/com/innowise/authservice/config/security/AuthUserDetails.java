@@ -15,9 +15,9 @@ public class AuthUserDetails implements UserDetails {
 
     private final AuthUser user;
 
-    public UUID getUserId() {
-        return user.getId();
-    }
+  public UUID getUserId() {
+    return user.getId();
+  }
 
     public Role getRole() {
         return user.getRole();

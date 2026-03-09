@@ -30,6 +30,7 @@ import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.JwtException;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,101 +48,101 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
 
-    @Mock
-    private AuthUserRepository authUserRepository;
-    @Mock
-    private AuthenticationManager authenticationManager;
-    @Mock
-    private JwtService jwtService;
-    @Mock
-    private PasswordEncoder passwordEncoder;
-    @Mock
-    private CustomUserDetailsService customUserDetailsService;
-    @Mock
-    private AuthUserMapper authUserMapper;
-    @Mock
-    private Authentication authentication;
-    @Mock
-    private UserServiceClient userServiceClient;
+  @Mock
+  private AuthUserRepository authUserRepository;
+  @Mock
+  private AuthenticationManager authenticationManager;
+  @Mock
+  private JwtService jwtService;
+  @Mock
+  private PasswordEncoder passwordEncoder;
+  @Mock
+  private CustomUserDetailsService customUserDetailsService;
+  @Mock
+  private AuthUserMapper authUserMapper;
+  @Mock
+  private Authentication authentication;
+  @Mock
+  private UserServiceClient userServiceClient;
 
     @InjectMocks
     private com.innowise.authservice.service.impl.AuthServiceImpl authService;
 
-    @Test
-    void register_whenUsernameExists_throwsConflict() {
-        RegisterRequest request = RegisterRequest.builder()
-                .username("user")
-                .name("Name")
-                .surname("Surname")
-                .email("user@example.com")
-                .password("password123")
-                .build();
-        when(authUserRepository.existsByUsername("user")).thenReturn(true);
+  @Test
+  void register_whenUsernameExists_throwsConflict() {
+    RegisterRequest request = RegisterRequest.builder()
+        .username("user")
+        .name("Name")
+        .surname("Surname")
+        .email("user@example.com")
+        .password("password123")
+        .build();
+    when(authUserRepository.existsByUsername("user")).thenReturn(true);
 
-        assertThrows(CredentialsConflictException.class, () -> authService.register(request));
-    }
+    assertThrows(CredentialsConflictException.class, () -> authService.register(request));
+  }
 
-    @Test
-    void register_whenEmailExists_throwsConflict() {
-        RegisterRequest request = RegisterRequest.builder()
-                .username("user")
-                .name("Name")
-                .surname("Surname")
-                .email("user@example.com")
-                .password("password123")
-                .build();
-        when(authUserRepository.existsByUsername("user")).thenReturn(false);
-        when(authUserRepository.existsByEmail("user@example.com")).thenReturn(true);
+  @Test
+  void register_whenEmailExists_throwsConflict() {
+    RegisterRequest request = RegisterRequest.builder()
+        .username("user")
+        .name("Name")
+        .surname("Surname")
+        .email("user@example.com")
+        .password("password123")
+        .build();
+    when(authUserRepository.existsByUsername("user")).thenReturn(false);
+    when(authUserRepository.existsByEmail("user@example.com")).thenReturn(true);
 
-        assertThrows(CredentialsConflictException.class, () -> authService.register(request));
-    }
+    assertThrows(CredentialsConflictException.class, () -> authService.register(request));
+  }
 
-    @Test
-    void register_whenValid_savesUserAndReturnsResponse() {
-        UUID userId = UUID.randomUUID();
-        RegisterRequest request = RegisterRequest.builder()
-                .username("user")
-                .name("Name")
-                .surname("Surname")
-                .email("user@example.com")
-                .password("password123")
-                .build();
-        CreateUserProfileRequest createUserProfileRequest = CreateUserProfileRequest.builder()
-                .name("Name")
-                .surname("Surname")
-                .email("user@example.com")
-                .build();
-        AuthUser mappedUser = new AuthUser();
-        mappedUser.setUsername("user");
-        mappedUser.setEmail("user@example.com");
-        mappedUser.setPassword("encoded");
-        mappedUser.setRole(Role.USER);
-        AuthUser savedUser = new AuthUser();
-        savedUser.setId(userId);
-        savedUser.setUsername("user");
-        savedUser.setEmail("user@example.com");
-        savedUser.setPassword("encoded");
-        savedUser.setRole(Role.USER);
-        RegisterResponse expected = RegisterResponse.builder()
-                .userId(userId)
-                .username("user")
-                .email("user@example.com")
-                .role(Role.USER)
-                .build();
-        when(passwordEncoder.encode("password123")).thenReturn("encoded");
-        when(authUserMapper.toEntity(request, "encoded")).thenReturn(mappedUser);
-        when(authUserMapper.toCreateUserProfileRequest(request)).thenReturn(createUserProfileRequest);
-        when(authUserRepository.save(mappedUser)).thenReturn(savedUser);
-        when(authUserMapper.toRegisterResponse(savedUser)).thenReturn(expected);
+  @Test
+  void register_whenValid_savesUserAndReturnsResponse() {
+    UUID userId = UUID.randomUUID();
+    RegisterRequest request = RegisterRequest.builder()
+        .username("user")
+        .name("Name")
+        .surname("Surname")
+        .email("user@example.com")
+        .password("password123")
+        .build();
+    CreateUserProfileRequest createUserProfileRequest = CreateUserProfileRequest.builder()
+        .name("Name")
+        .surname("Surname")
+        .email("user@example.com")
+        .build();
+    AuthUser mappedUser = new AuthUser();
+    mappedUser.setUsername("user");
+    mappedUser.setEmail("user@example.com");
+    mappedUser.setPassword("encoded");
+    mappedUser.setRole(Role.USER);
+    AuthUser savedUser = new AuthUser();
+    savedUser.setId(userId);
+    savedUser.setUsername("user");
+    savedUser.setEmail("user@example.com");
+    savedUser.setPassword("encoded");
+    savedUser.setRole(Role.USER);
+    RegisterResponse expected = RegisterResponse.builder()
+        .userId(userId)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.USER)
+        .build();
+    when(passwordEncoder.encode("password123")).thenReturn("encoded");
+    when(authUserMapper.toEntity(request, "encoded")).thenReturn(mappedUser);
+    when(authUserMapper.toCreateUserProfileRequest(request)).thenReturn(createUserProfileRequest);
+    when(authUserRepository.save(mappedUser)).thenReturn(savedUser);
+    when(authUserMapper.toRegisterResponse(savedUser)).thenReturn(expected);
 
-        RegisterResponse response = authService.register(request);
+    RegisterResponse response = authService.register(request);
 
-        verify(authUserMapper).toEntity(request, "encoded");
-        verify(authUserRepository).save(mappedUser);
-        verify(userServiceClient).createUserProfile(any(CreateUserProfileRequest.class));
-        verify(authUserMapper).toRegisterResponse(savedUser);
-        assertSame(expected, response);
-    }
+    verify(authUserMapper).toEntity(request, "encoded");
+    verify(authUserRepository).save(mappedUser);
+    verify(userServiceClient).createUserProfile(any(CreateUserProfileRequest.class));
+    verify(authUserMapper).toRegisterResponse(savedUser);
+    assertSame(expected, response);
+  }
 
     @Test
     void createTokens_whenUserNotFound_throwsLoginFailed() {
@@ -224,28 +225,28 @@ class AuthServiceImplTest {
         assertThrows(AccessTokenRejectedException.class, () -> authService.validateToken(request));
     }
 
-    @Test
-    void validateToken_whenValid_returnsUserInfo() {
-        UUID userId = UUID.randomUUID();
-        ValidateTokenRequest request = ValidateTokenRequest.builder()
-                .token("token")
-                .build();
-        AuthUser user = new AuthUser();
-        user.setId(userId);
-        user.setUsername("user");
-        user.setEmail("user@example.com");
-        user.setRole(Role.ADMIN);
-        AuthUserDetails userDetails = new AuthUserDetails(user);
-        ValidateTokenResponse expected = ValidateTokenResponse.builder()
-                .valid(true)
-                .userId(userId)
-                .username("user")
-                .email("user@example.com")
-                .role(Role.ADMIN)
-                .build();
-        when(jwtService.extractUsername("token")).thenReturn("user");
-        when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
-        when(authUserMapper.toValidateTokenResponse(userDetails)).thenReturn(expected);
+  @Test
+  void validateToken_whenValid_returnsUserInfo() {
+    UUID userId = UUID.randomUUID();
+    ValidateTokenRequest request = ValidateTokenRequest.builder()
+        .token("token")
+        .build();
+    AuthUser user = new AuthUser();
+    user.setId(userId);
+    user.setUsername("user");
+    user.setEmail("user@example.com");
+    user.setRole(Role.ADMIN);
+    AuthUserDetails userDetails = new AuthUserDetails(user);
+    ValidateTokenResponse expected = ValidateTokenResponse.builder()
+        .valid(true)
+        .userId(userId)
+        .username("user")
+        .email("user@example.com")
+        .role(Role.ADMIN)
+        .build();
+    when(jwtService.extractUsername("token")).thenReturn("user");
+    when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
+    when(authUserMapper.toValidateTokenResponse(userDetails)).thenReturn(expected);
 
         ValidateTokenResponse response = authService.validateToken(request);
 

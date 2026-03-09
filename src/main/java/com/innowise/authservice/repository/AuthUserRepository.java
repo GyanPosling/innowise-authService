@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AuthUserRepository extends JpaRepository<AuthUser, UUID> {
-    Optional<AuthUser> findByUsername(String username);
+  Optional<AuthUser> findByUsername(String username);
 
     Optional<AuthUser> findByEmail(String email);
 

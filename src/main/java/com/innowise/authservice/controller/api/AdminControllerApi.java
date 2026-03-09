@@ -11,11 +11,11 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "Admin", description = "Admin user management API")
 public interface AdminControllerApi {
 
-    @Operation(summary = "Promote user to ADMIN")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User promoted"),
-            @ApiResponse(responseCode = "401", description = "Unauthorized"),
-            @ApiResponse(responseCode = "404", description = "User not found")
-    })
-    ResponseEntity<PromoteUserResponse> promoteToAdmin(UUID id);
+  @Operation(summary = "Promote user to ADMIN")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "User promoted"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized"),
+      @ApiResponse(responseCode = "404", description = "User not found")
+  })
+  ResponseEntity<PromoteUserResponse> promoteToAdmin(UUID id);
 }
