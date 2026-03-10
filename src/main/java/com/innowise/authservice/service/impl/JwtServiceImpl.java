@@ -4,6 +4,7 @@ import com.innowise.authservice.config.security.AuthUserDetails;
 import com.innowise.authservice.mapper.TokenResponseMapper;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.TokenType;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -15,6 +16,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,95 +27,116 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
-  private final TokenResponseMapper tokenResponseMapper;
+    private static final String TOKEN_TYPE_CLAIM = "tokenType";
 
-  @Value("${jwt.secret}")
-  private String secret;
+    private final TokenResponseMapper tokenResponseMapper;
 
-  @Value("${jwt.expiration}")
-  private Long tokenExpiration;
+    @Value("${jwt.secret}")
+    private String secret;
 
-  @Value("${jwt.refresh-expiration}")
-  private Long refreshTokenExpiration;
+    @Value("${jwt.expiration}")
+    private Long tokenExpiration;
 
-  @Override
-  public TokenResponse generateTokens(UserDetails userDetails) {
-    return buildTokenResponse(
-        generateToken(userDetails, tokenExpiration),
-        generateToken(userDetails, refreshTokenExpiration));
-  }
+    @Value("${jwt.refresh-expiration}")
+    private Long refreshTokenExpiration;
 
-  @Override
-  public TokenResponse refreshTokens(String refreshToken, UserDetails userDetails) {
-    return buildTokenResponse(
-        generateToken(userDetails, tokenExpiration),
-        refreshToken);
-  }
-
-  @Override
-  public void validateToken(String token) {
-    Claims claims = extractAllClaims(token);
-    Date expiration = claims.getExpiration();
-    if (expiration == null) {
-      throw new JwtException("Token expiration is missing");
-    }
-    if (expiration.before(new Date())) {
-      throw new JwtException("Token is expired");
-    }
-  }
-
-  @Override
-  public String extractUsername(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
-
-  @Override
-  public Long extractUserId(String token) {
-    return extractClaim(token, claims -> claims.get("userId", Long.class));
-  }
-
-  @Override
-  public Role extractRole(String token) {
-    return extractClaim(token, claims -> Role.valueOf(claims.get("role", String.class)));
-  }
-
-  private String generateToken(UserDetails userDetails, long expirationMs) {
-    Map<String, Object> claims = new HashMap<>();
-    if (userDetails instanceof AuthUserDetails authUserDetails) {
-      claims.put("userId", authUserDetails.getUserId());
-      claims.put("role", authUserDetails.getRole().name());
+    @Override
+    public TokenResponse generateTokens(UserDetails userDetails) {
+        return buildTokenResponse(
+                generateToken(userDetails, tokenExpiration, TokenType.ACCESS),
+                generateToken(userDetails, refreshTokenExpiration, TokenType.REFRESH));
     }
 
-    long now = System.currentTimeMillis();
-    Date expire = new Date(now + expirationMs);
+    @Override
+    public TokenResponse refreshTokens(String refreshToken, UserDetails userDetails) {
+        return buildTokenResponse(
+                generateToken(userDetails, tokenExpiration, TokenType.ACCESS),
+                refreshToken);
+    }
 
-    return Jwts.builder()
-        .setSubject(userDetails.getUsername())
-        .addClaims(claims)
-        .setIssuedAt(new Date(now))
-        .setExpiration(expire)
-        .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-        .compact();
-  }
+    @Override
+    public void validateToken(String token) {
+        Claims claims = extractAllClaims(token);
+        Date expiration = claims.getExpiration();
+        if (expiration == null) {
+            throw new JwtException("Token expiration is missing");
+        }
+        if (expiration.before(new Date())) {
+            throw new JwtException("Token is expired");
+        }
+        String tokenType = claims.get(TOKEN_TYPE_CLAIM, String.class);
+        if (tokenType == null || tokenType.isBlank()) {
+            throw new JwtException("Token type is missing");
+        }
+        try {
+            TokenType.valueOf(tokenType);
+        } catch (IllegalArgumentException ex) {
+            throw new JwtException("Token type is invalid");
+        }
+    }
 
-  private TokenResponse buildTokenResponse(String accessToken, String refreshToken) {
-    return tokenResponseMapper.toResponse(accessToken, refreshToken);
-  }
+    @Override
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
 
-  private <T> T extractClaim(String token, Function<Claims, T> function) {
-    Claims claims = extractAllClaims(token);
-    return function.apply(claims);
-  }
+    @Override
+    public UUID extractUserId(String token) {
+        return extractClaim(token, claims -> {
+            String userId = claims.get("userId", String.class);
+            return userId == null ? null : UUID.fromString(userId);
+        });
+    }
 
-  private Claims extractAllClaims(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(getSigningKey())
-        .build()
-        .parseClaimsJws(token)
-        .getBody();
-  }
+    @Override
+    public Role extractRole(String token) {
+        return extractClaim(token, claims -> Role.valueOf(claims.get("role", String.class)));
+    }
 
-  private Key getSigningKey() {
-    return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
-  }
+    @Override
+    public TokenType extractTokenType(String token) {
+        return extractClaim(token, claims -> TokenType.valueOf(claims.get(TOKEN_TYPE_CLAIM, String.class)));
+    }
+
+    private String generateToken(UserDetails userDetails, long expirationMs, TokenType tokenType) {
+        Map<String, Object> claims = new HashMap<>();
+        if (userDetails instanceof AuthUserDetails authUserDetails) {
+            claims.put("userId", authUserDetails.getUserId().toString());
+            claims.put("role", authUserDetails.getRole().name());
+            claims.put("email", authUserDetails.getEmail());
+        }
+        claims.put(TOKEN_TYPE_CLAIM, tokenType.name());
+
+        long now = System.currentTimeMillis();
+        Date expire = new Date(now + expirationMs);
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .addClaims(claims)
+                .setIssuedAt(new Date(now))
+                .setExpiration(expire)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private TokenResponse buildTokenResponse(String accessToken, String refreshToken) {
+        return tokenResponseMapper.toResponse(accessToken, refreshToken);
+    }
+
+    private <T> T extractClaim(String token, Function<Claims, T> function) {
+        Claims claims = extractAllClaims(token);
+        return function.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
 }

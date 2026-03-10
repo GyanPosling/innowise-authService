@@ -16,71 +16,74 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class JwtServiceImplTest {
 
-  private JwtServiceImpl jwtService;
+    private JwtServiceImpl jwtService;
 
-  @BeforeEach
-  void setUp() {
-    jwtService = new JwtServiceImpl(new TokenResponseMapper());
-    ReflectionTestUtils.setField(jwtService, "secret",
-        "0123456789abcdef0123456789abcdef");
-    ReflectionTestUtils.setField(jwtService, "tokenExpiration", 60000L);
-    ReflectionTestUtils.setField(jwtService, "refreshTokenExpiration", 120000L);
-  }
+    @BeforeEach
+    void setUp() {
+        jwtService = new JwtServiceImpl(new TokenResponseMapper());
+        ReflectionTestUtils.setField(jwtService, "secret",
+                "0123456789abcdef0123456789abcdef");
+        ReflectionTestUtils.setField(jwtService, "tokenExpiration", 60000L);
+        ReflectionTestUtils.setField(jwtService, "refreshTokenExpiration", 120000L);
+    }
 
-  @Test
-  void generateTokens_includesUserClaims() {
-    AuthUser user = new AuthUser();
-    user.setId(5L);
-    user.setUsername("user");
-    user.setEmail("user@example.com");
-    user.setRole(Role.USER);
-    AuthUserDetails userDetails = new AuthUserDetails(user);
+    @Test
+    void generateTokens_includesUserClaims() {
+        UUID userId = UUID.randomUUID();
+        AuthUser user = new AuthUser();
+        user.setId(userId);
+        user.setUsername("user");
+        user.setEmail("user@example.com");
+        user.setRole(Role.USER);
+        AuthUserDetails userDetails = new AuthUserDetails(user);
 
-    TokenResponse response = jwtService.generateTokens(userDetails);
+        TokenResponse response = jwtService.generateTokens(userDetails);
 
-    assertNotNull(response.getAccessToken());
-    assertNotNull(response.getRefreshToken());
-    assertEquals("Bearer", response.getTokenType());
+        assertNotNull(response.getAccessToken());
+        assertNotNull(response.getRefreshToken());
+        assertEquals("Bearer", response.getTokenType());
 
-    assertEquals(5L, jwtService.extractUserId(response.getAccessToken()));
-    assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
-  }
+        assertEquals(userId, jwtService.extractUserId(response.getAccessToken()));
+        assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
+    }
 
-  @Test
-  void validateToken_allowsValidToken() {
-    AuthUser user = new AuthUser();
-    user.setId(5L);
-    user.setUsername("user");
-    user.setEmail("user@example.com");
-    user.setRole(Role.USER);
-    AuthUserDetails userDetails = new AuthUserDetails(user);
-    TokenResponse response = jwtService.generateTokens(userDetails);
+    @Test
+    void validateToken_allowsValidToken() {
+        UUID userId = UUID.randomUUID();
+        AuthUser user = new AuthUser();
+        user.setId(userId);
+        user.setUsername("user");
+        user.setEmail("user@example.com");
+        user.setRole(Role.USER);
+        AuthUserDetails userDetails = new AuthUserDetails(user);
+        TokenResponse response = jwtService.generateTokens(userDetails);
 
-    assertDoesNotThrow(() -> jwtService.validateToken(response.getAccessToken()));
-  }
+        assertDoesNotThrow(() -> jwtService.validateToken(response.getAccessToken()));
+    }
 
-  @Test
-  void validateToken_throwsForMalformedToken() {
-    assertThrows(JwtException.class, () -> jwtService.validateToken("not-a-token"));
-  }
+    @Test
+    void validateToken_throwsForMalformedToken() {
+        assertThrows(JwtException.class, () -> jwtService.validateToken("not-a-token"));
+    }
 
-  @Test
-  void validateToken_throwsForExpiredToken() {
-    String expiredToken = Jwts.builder()
-        .setSubject("user")
-        .setIssuedAt(new Date(System.currentTimeMillis() - 60000))
-        .setExpiration(new Date(System.currentTimeMillis() - 1000))
-        .signWith(Keys.hmacShaKeyFor(
-            "0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8)),
-            SignatureAlgorithm.HS256)
-        .compact();
+    @Test
+    void validateToken_throwsForExpiredToken() {
+        String expiredToken = Jwts.builder()
+                .setSubject("user")
+                .setIssuedAt(new Date(System.currentTimeMillis() - 60000))
+                .setExpiration(new Date(System.currentTimeMillis() - 1000))
+                .signWith(Keys.hmacShaKeyFor(
+                        "0123456789abcdef0123456789abcdef".getBytes(StandardCharsets.UTF_8)),
+                        SignatureAlgorithm.HS256)
+                .compact();
 
-    assertThrows(JwtException.class, () -> jwtService.validateToken(expiredToken));
-  }
+        assertThrows(JwtException.class, () -> jwtService.validateToken(expiredToken));
+    }
 }

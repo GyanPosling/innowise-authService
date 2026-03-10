@@ -2,10 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["tasks/AUTH-0", "main"]
+    branches: ["**"]
   pull_request:
-    branches: ["tasks/AUTH-0", "main"]
-
+    branches: 
 jobs:
   ci-build-test-analysis-upload:
     name: CI - Build, Test, SonarQube Analysis, JAR Upload

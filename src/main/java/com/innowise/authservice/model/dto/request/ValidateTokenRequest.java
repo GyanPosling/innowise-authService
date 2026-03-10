@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ValidateTokenRequest {
 
-  @NotBlank(message = "Token is required")
-  private String token;
+    @NotBlank(message = "Token is required")
+    private String token;
 }

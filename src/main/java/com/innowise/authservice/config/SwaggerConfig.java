@@ -11,18 +11,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-  @Bean
-  public OpenAPI authServiceOpenApi() {
-    return new OpenAPI()
-        .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
-        .components(new Components()
-            .addSecuritySchemes("bearerAuth",
-                new SecurityScheme()
-                    .type(SecurityScheme.Type.HTTP)
-                    .scheme("bearer")
-                    .bearerFormat("JWT")))
-        .info(new Info()
-            .title("Auth Service API")
-            .version("v1"));
-  }
+    @Bean
+    public OpenAPI authServiceOpenApi() {
+        return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new Components()
+                        .addSecuritySchemes("bearerAuth",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")))
+                .info(new Info()
+                        .title("Auth Service API")
+                        .version("v1"));
+    }
 }

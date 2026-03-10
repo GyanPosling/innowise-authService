@@ -16,40 +16,40 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AdminInitializer implements ApplicationRunner {
 
-  private final AuthUserRepository authUserRepository;
-  private final PasswordEncoder passwordEncoder;
+    private final AuthUserRepository authUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
-  @Value("${admin.username:}")
-  private String adminUsername;
+    @Value("${admin.username:}")
+    private String adminUsername;
 
-  @Value("${admin.email:}")
-  private String adminEmail;
+    @Value("${admin.email:}")
+    private String adminEmail;
 
-  @Value("${admin.password:}")
-  private String adminPassword;
+    @Value("${admin.password:}")
+    private String adminPassword;
 
-  @Override
-  public void run(ApplicationArguments args) {
-    if (isBlank(adminUsername) || isBlank(adminEmail) || isBlank(adminPassword)) {
-      log.info("Admin seed skipped: missing admin credentials");
-      return;
+    @Override
+    public void run(ApplicationArguments args) {
+        if (isBlank(adminUsername) || isBlank(adminEmail) || isBlank(adminPassword)) {
+            log.info("Admin seed skipped: missing admin credentials");
+            return;
+        }
+        if (authUserRepository.existsByUsername(adminUsername)
+                || authUserRepository.existsByEmail(adminEmail)) {
+            return;
+        }
+
+        AuthUser admin = new AuthUser();
+        admin.setUsername(adminUsername);
+        admin.setEmail(adminEmail);
+        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setRole(Role.ADMIN);
+        authUserRepository.save(admin);
+
+        log.info("Admin user created: {}", adminUsername);
     }
-    if (authUserRepository.existsByUsername(adminUsername)
-        || authUserRepository.existsByEmail(adminEmail)) {
-      return;
+
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
-
-    AuthUser admin = new AuthUser();
-    admin.setUsername(adminUsername);
-    admin.setEmail(adminEmail);
-    admin.setPassword(passwordEncoder.encode(adminPassword));
-    admin.setRole(Role.ADMIN);
-    authUserRepository.save(admin);
-
-    log.info("Admin user created: {}", adminUsername);
-  }
-
-  private boolean isBlank(String value) {
-    return value == null || value.isBlank();
-  }
 }

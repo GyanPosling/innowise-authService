@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ValidationErrorResponse {
 
-  private Map<String, String> errors;
+    private Map<String, String> errors;
 }

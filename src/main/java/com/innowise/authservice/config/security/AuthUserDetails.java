@@ -4,6 +4,7 @@ import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,52 +13,52 @@ import org.springframework.security.core.userdetails.UserDetails;
 @RequiredArgsConstructor
 public class AuthUserDetails implements UserDetails {
 
-  private final AuthUser user;
+    private final AuthUser user;
 
-  public Long getUserId() {
-    return user.getId();
-  }
+    public UUID getUserId() {
+        return user.getId();
+    }
 
-  public Role getRole() {
-    return user.getRole();
-  }
+    public Role getRole() {
+        return user.getRole();
+    }
 
-  public String getEmail() {
-    return user.getEmail();
-  }
+    public String getEmail() {
+        return user.getEmail();
+    }
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-  }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+    }
 
-  @Override
-  public String getPassword() {
-    return user.getPassword();
-  }
+    @Override
+    public String getPassword() {
+        return user.getPassword();
+    }
 
-  @Override
-  public String getUsername() {
-    return user.getUsername();
-  }
+    @Override
+    public String getUsername() {
+        return user.getUsername();
+    }
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return user.isAccountNonExpired();
-  }
+    @Override
+    public boolean isAccountNonExpired() {
+        return user.isAccountNonExpired();
+    }
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return user.isAccountNonLocked();
-  }
+    @Override
+    public boolean isAccountNonLocked() {
+        return user.isAccountNonLocked();
+    }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return user.isCredentialsNonExpired();
-  }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return user.isCredentialsNonExpired();
+    }
 
-  @Override
-  public boolean isEnabled() {
-    return user.isEnabled();
-  }
+    @Override
+    public boolean isEnabled() {
+        return user.isEnabled();
+    }
 }

@@ -13,12 +13,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
-  private final AuthUserRepository authUserRepository;
+    private final AuthUserRepository authUserRepository;
 
-  @Override
-  public UserDetails loadUserByUsername(String username) {
-    AuthUser user = authUserRepository.findByUsername(username)
-        .orElseThrow(() -> new AuthUserNotFoundException("username", username));
-    return new AuthUserDetails(user);
-  }
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        AuthUser user = authUserRepository.findByUsername(username)
+                .orElseThrow(() -> new AuthUserNotFoundException("username: " + username));
+        return new AuthUserDetails(user);
+    }
 }

@@ -7,6 +7,7 @@ import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
 import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.AdminService;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +15,18 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
-  private final AuthUserRepository authUserRepository;
-  private final AuthUserMapper authUserMapper;
+    private final AuthUserRepository authUserRepository;
+    private final AuthUserMapper authUserMapper;
 
-  @Override
-  public PromoteUserResponse promoteToAdmin(Long userId) {
-    AuthUser user = authUserRepository.findById(userId)
-        .orElseThrow(() -> new AuthUserNotFoundException("id", String.valueOf(userId)));
-    if (user.getRole() == Role.ADMIN) {
-      return authUserMapper.toPromoteUserResponse(user);
+    @Override
+    public PromoteUserResponse promoteToAdmin(UUID userId) {
+        AuthUser user = authUserRepository.findById(userId)
+                .orElseThrow(() -> new AuthUserNotFoundException("id: " + userId));
+        if (user.getRole() == Role.ADMIN) {
+            return authUserMapper.toPromoteUserResponse(user);
+        }
+        user.setRole(Role.ADMIN);
+        AuthUser savedUser = authUserRepository.save(user);
+        return authUserMapper.toPromoteUserResponse(savedUser);
     }
-    user.setRole(Role.ADMIN);
-    AuthUser savedUser = authUserRepository.save(user);
-    return authUserMapper.toPromoteUserResponse(savedUser);
-  }
 }

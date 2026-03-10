@@ -22,39 +22,39 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  private final JwtService jwtService;
-  private final CustomUserDetailsService userDetailsService;
+    private final JwtService jwtService;
+    private final CustomUserDetailsService userDetailsService;
 
-  @Override
-  protected void doFilterInternal(@NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
-      throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
-    String jwtToken = getTokenFromRequest(request);
-    if (jwtToken != null) {
-      try {
-        jwtService.validateToken(jwtToken);
-        setAuthentication(jwtToken);
-      } catch (JwtException | IllegalArgumentException ex) {
-        log.debug("Invalid JWT", ex);
-      }
+        String jwtToken = getTokenFromRequest(request);
+        if (jwtToken != null) {
+            try {
+                jwtService.validateToken(jwtToken);
+                setAuthentication(jwtToken);
+            } catch (JwtException | IllegalArgumentException ex) {
+                log.debug("Invalid JWT", ex);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
-    filterChain.doFilter(request, response);
-  }
 
-  private String getTokenFromRequest(HttpServletRequest request) {
-    String requestTokenHeader = request.getHeader("Authorization");
-    if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
-      return requestTokenHeader.substring(7);
+    private String getTokenFromRequest(HttpServletRequest request) {
+        String requestTokenHeader = request.getHeader("Authorization");
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            return requestTokenHeader.substring(7);
+        }
+        return null;
     }
-    return null;
-  }
 
-  private void setAuthentication(String jwtToken) {
-    String username = jwtService.extractUsername(jwtToken);
-    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-        userDetails, null, userDetails.getAuthorities());
-    SecurityContextHolder.getContext().setAuthentication(authentication);
-  }
+    private void setAuthentication(String jwtToken) {
+        String username = jwtService.extractUsername(jwtToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
 }
