@@ -145,15 +145,14 @@ class AuthServiceImplTest {
   }
 
     @Test
-    void createTokens_whenUserNotFound_throwsLoginFailed() {
+    void createTokens_whenUserNotFound_throwsAuthUserNotFound() {
         LoginRequest request = LoginRequest.builder()
                 .username("user")
                 .password("password123")
                 .build();
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new AuthUserNotFoundException("username: user"));
+        when(authUserRepository.findByUsername("user")).thenReturn(Optional.empty());
 
-        assertThrows(LoginFailedException.class, () -> authService.createTokens(request));
+        assertThrows(AuthUserNotFoundException.class, () -> authService.createTokens(request));
     }
 
     @Test
@@ -162,6 +161,7 @@ class AuthServiceImplTest {
                 .username("user")
                 .password("password123")
                 .build();
+        when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("bad credentials"));
 
@@ -177,9 +177,10 @@ class AuthServiceImplTest {
         UserDetails userDetails = new User("user", "pass", new java.util.ArrayList<>());
         TokenResponse expected = TokenResponse.builder().accessToken("access").refreshToken("refresh")
                 .tokenType("Bearer").build();
+        when(authUserRepository.findByUsername("user")).thenReturn(Optional.of(new AuthUser()));
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
-        when(customUserDetailsService.loadUserByUsername("user")).thenReturn(userDetails);
+        when(authentication.getPrincipal()).thenReturn(userDetails);
         when(jwtService.generateTokens(userDetails)).thenReturn(expected);
 
         TokenResponse response = authService.createTokens(request);

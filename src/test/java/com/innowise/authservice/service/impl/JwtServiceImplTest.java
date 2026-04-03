@@ -10,7 +10,9 @@ import com.innowise.authservice.mapper.TokenResponseMapper;
 import com.innowise.authservice.model.dto.response.TokenResponse;
 import com.innowise.authservice.model.entity.AuthUser;
 import com.innowise.authservice.model.entity.type.Role;
+import com.innowise.authservice.model.entity.type.TokenType;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.RequiredTypeException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -46,12 +48,15 @@ class JwtServiceImplTest {
 
         TokenResponse response = jwtService.generateTokens(userDetails);
 
-        assertNotNull(response.getAccessToken());
-        assertNotNull(response.getRefreshToken());
-        assertEquals("Bearer", response.getTokenType());
+    assertNotNull(response.getAccessToken());
+    assertNotNull(response.getRefreshToken());
+    assertEquals("Bearer", response.getTokenType());
 
-    assertEquals(userId, jwtService.extractUserId(response.getAccessToken()));
+    assertThrows(RequiredTypeException.class, () -> jwtService.extractUserId(response.getAccessToken()));
+    assertEquals("user", jwtService.extractUsername(response.getAccessToken()));
     assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
+    assertEquals(TokenType.ACCESS, jwtService.extractTokenType(response.getAccessToken()));
+    assertEquals(TokenType.REFRESH, jwtService.extractTokenType(response.getRefreshToken()));
   }
 
   @Test
