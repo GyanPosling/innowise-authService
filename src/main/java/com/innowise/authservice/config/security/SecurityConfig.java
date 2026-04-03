@@ -24,24 +24,25 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/api/v1/auth/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**").permitAll()
-                        .anyRequest().hasRole(Role.ADMIN.name()))
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .httpBasic(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .formLogin(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/api/v1/auth/**",
+                "/actuator/health/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**").permitAll()
+            .anyRequest().hasRole(Role.ADMIN.name()))
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    return http.build();
+  }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

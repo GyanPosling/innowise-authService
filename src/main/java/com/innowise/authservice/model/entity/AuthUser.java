@@ -63,10 +63,13 @@ public class AuthUser {
     @ColumnDefault("true")
     private boolean enabled = true;
 
-    @PrePersist
-    private void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+  @PrePersist
+  private void onCreate() {
+    if (id == null) {
+      id = UUID.randomUUID();
+    }
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
 
         if (role == null) {
             role = Role.USER;
