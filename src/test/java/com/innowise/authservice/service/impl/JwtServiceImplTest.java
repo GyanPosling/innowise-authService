@@ -47,16 +47,18 @@ class JwtServiceImplTest {
     AuthUserDetails userDetails = new AuthUserDetails(user);
 
         TokenResponse response = jwtService.generateTokens(userDetails);
+        String accessToken = response.getAccessToken();
+        String refreshToken = response.getRefreshToken();
 
-    assertNotNull(response.getAccessToken());
-    assertNotNull(response.getRefreshToken());
+    assertNotNull(accessToken);
+    assertNotNull(refreshToken);
     assertEquals("Bearer", response.getTokenType());
 
-    assertThrows(RequiredTypeException.class, () -> jwtService.extractUserId(response.getAccessToken()));
-    assertEquals("user", jwtService.extractUsername(response.getAccessToken()));
-    assertEquals(Role.USER, jwtService.extractRole(response.getAccessToken()));
-    assertEquals(TokenType.ACCESS, jwtService.extractTokenType(response.getAccessToken()));
-    assertEquals(TokenType.REFRESH, jwtService.extractTokenType(response.getRefreshToken()));
+    assertThrows(RequiredTypeException.class, () -> jwtService.extractUserId(accessToken));
+    assertEquals("user", jwtService.extractUsername(accessToken));
+    assertEquals(Role.USER, jwtService.extractRole(accessToken));
+    assertEquals(TokenType.ACCESS, jwtService.extractTokenType(accessToken));
+    assertEquals(TokenType.REFRESH, jwtService.extractTokenType(refreshToken));
   }
 
   @Test
