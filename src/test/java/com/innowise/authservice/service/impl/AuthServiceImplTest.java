@@ -30,7 +30,6 @@ import com.innowise.authservice.repository.AuthUserRepository;
 import com.innowise.authservice.service.CustomUserDetailsService;
 import com.innowise.authservice.service.JwtService;
 import io.jsonwebtoken.JwtException;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
